@@ -29,7 +29,7 @@ if (! function_exists('await')) {
         }
 
         return array_map(
-            static fn (Promise $promise) => $promise->resolve(),
+            static fn (Promise $promise): mixed => $promise->resolve(),
             $promises
         );
     }

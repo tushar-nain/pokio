@@ -13,7 +13,7 @@ final readonly class PipePath
     {
         return implode(DIRECTORY_SEPARATOR, [
             sys_get_temp_dir(),
-            'pokio_pipe_' . uniqid(),
+            'pokio_pipe_'.uniqid(),
         ]);
     }
 }

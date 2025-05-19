@@ -44,11 +44,16 @@
         }
     },
     "scripts": {
-        "lint": "pint",
-        "refactor": "rector",
+        "lint": [
+            "rector",
+            "pint"
+        ],
         "test:type-coverage": "pest --type-coverage --exactly=100",
         "test:typos": "peck",
-        "test:lint": "pint --test",
+        "test:lint": [
+            "rector --dry-run",
+            "pint --test"
+        ],
         "test:unit": [
             "POKIO_RUNTIME=sync pest",
             "POKIO_RUNTIME=fork pest"
