@@ -1,6 +1,6 @@
 {
     "name": "nunomaduro/pokio",
-    "description": "Pokio is an asynchronous library for PHP.",
+    "description": "Pokio is a dead simple asynchronous API for PHP that just works",
     "keywords": ["pokio","php", "asynchronous", "library"],
     "license": "MIT",
     "authors": [
