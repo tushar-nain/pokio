@@ -17,7 +17,7 @@ final readonly class ForkRuntime implements Runtime
     /**
      * Defers the given callback to be executed asynchronously.
      */
-    public function defer(Closure $callback): Result
+    public function defer(Closure $callback, ?Closure $rescue = null): Result
     {
         $pipePath = PipePath::get();
 
@@ -38,8 +38,12 @@ final readonly class ForkRuntime implements Runtime
         if ($pid === 0) {
             try {
                 $result = $callback();
-            } catch (Throwable $e) {
-                $result = new PokioExceptionHandler($e);
+            } catch (Throwable $exception) {
+                $result = new PokioExceptionHandler($exception);
+
+                if ($rescue instanceof Closure) {
+                    $result = $rescue($exception);
+                }
             }
 
             $pipe = fopen($pipePath, 'w');
