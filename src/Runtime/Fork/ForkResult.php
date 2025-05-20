@@ -3,6 +3,7 @@
 namespace Pokio\Runtime\Fork;
 
 use Pokio\Contracts\Result;
+use RuntimeException;
 
 /**
  * Represents the result of a forked process.
@@ -39,8 +40,12 @@ final class ForkResult implements Result
 
         $pipe = fopen($this->pipePath, 'r');
 
+        if ($pipe === false) {
+            throw new RuntimeException('Failed to open pipe (reading)');
+        }
+
         stream_set_blocking($pipe, true);
-        $serialized = stream_get_contents($pipe);
+        $serialized = (string) stream_get_contents($pipe);
         fclose($pipe);
 
         if (file_exists($this->pipePath)) {

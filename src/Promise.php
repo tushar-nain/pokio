@@ -7,14 +7,14 @@ namespace Pokio;
 use Closure;
 use Pokio\Contracts\Result;
 
-final readonly class Promise
+final class Promise
 {
     private Result $result;
 
     /**
      * Creates a new promise instance.
      */
-    public function __construct(private Closure $callback)
+    public function __construct(private readonly Closure $callback)
     {
         //
     }
