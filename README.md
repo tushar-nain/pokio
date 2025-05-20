@@ -14,7 +14,27 @@
     <a href="https://packagist.org/packages/nunomaduro/pokio"><img src="https://img.shields.io/packagist/l/nunomaduro/pokio" alt="License"></a>
 </p>
 
-**Pokio** is a modern asynchronous library for PHP, built to bring concurrent programming to your codebase. It allows you to run multiple tasks in parallel, making it easier to handle and manage concurrent operations.
+**Pokio** is a dead simple **PHP Asynchronous** API that just works! Here is a example:
+
+```php
+$promiseA = async(fn () () {
+    sleep(2);
+    
+    return 'Task 1';
+});
+
+$promiseB = async(function () {
+    sleep(2);
+    
+    return 'Task 2';
+});
+
+// just takes 2 seconds...
+[$resA, $resB] = await([$promiseA, $promiseB]);
+
+echo $resA; // Task 1
+echo $resB; // Task 2
+```
 
 > **Requires [PHP 8.3+](https://php.net/releases/)**.
 
