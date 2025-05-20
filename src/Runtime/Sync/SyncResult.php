@@ -28,7 +28,7 @@ final readonly class SyncResult implements Result
             $result = ($this->callback)();
 
             if ($result instanceof Promise) {
-                $result = await($result);
+                return await($result);
             }
 
             return $result;

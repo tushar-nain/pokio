@@ -88,11 +88,49 @@ try {
 }
 ```
 
+If you return a promise from the closure, it will be awaited automatically.
+
+```php
+$promise = async(function () {
+    return async(function () {
+        return 1 + 1;
+    });
+});
+
+var_dump(await($promise)); // int(2)
+```
+
 - `await`
 
 The `await` global function will block the current process until the given promise resolves.
 
 ```php
+$promise = async(function () {
+    sleep(2);
+    
+    return 1 + 1;
+});
+
+var_dump(await($promise)); // int(2)
+```
+
+You may also pass an array of promises to the `await` function, which will be awaited simultaneously.
+
+```php
+$promiseA = async(function () {
+    sleep(2);
+    
+    return 1 + 1;
+});
+
+$promiseB = async(function () {
+    sleep(2);
+    
+    return 2 + 2;
+});
+
+var_dump(await([$promiseA, $promiseB])); // array(2) { [0]=> int(2) [1]=> int(4) }
+```
 
 ## Follow Nuno
 

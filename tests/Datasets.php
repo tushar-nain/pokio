@@ -6,5 +6,11 @@ use Pokio\Environment;
 
 dataset('runtimes', [
     'sync' => fn () => Environment::useSync(),
-    'fork' => fn () => Environment::useFork(),
+    'fork' => function () {
+        if (! extension_loaded('pcntl') || ! extension_loaded('posix')) {
+            $this->markTestSkipped('The pcntl and posix extensions are required to use the fork runtime.');
+        }
+
+        Environment::useFork();
+    },
 ]);
