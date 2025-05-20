@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pokio\Runtime\Fork;
 
 use Pokio\Contracts\Result;
+use RuntimeException;
 
 /**
  * Represents the result of a forked process.
@@ -23,7 +26,8 @@ final class ForkResult implements Result
      * Creates a new fork result instance.
      */
     public function __construct(
-        private readonly string $pipePath,
+        private readonly int $pid,
+        private readonly int $shmKey,
     ) {
         //
     }
@@ -37,18 +41,20 @@ final class ForkResult implements Result
             return $this->result;
         }
 
-        $pipe = fopen($this->pipePath, 'r');
+        pcntl_waitpid($this->pid, $status);
 
-        stream_set_blocking($pipe, true);
-        $serialized = stream_get_contents($pipe);
-        fclose($pipe);
+        $shmId = shmop_open($this->shmKey, 'a', 0, 0);
 
-        if (file_exists($this->pipePath)) {
-            unlink($this->pipePath);
+        if (! $shmId) {
+            throw new RuntimeException('Failed to open shared memory block');
         }
+
+        $data = shmop_read($shmId, 0, shmop_size($shmId));
+
+        shmop_delete($shmId);
 
         $this->resolved = true;
 
-        return $this->result = unserialize($serialized);
+        return $this->result = unserialize($data);
     }
 }

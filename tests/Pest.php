@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Pokio\Environment;
 
 pest()->beforeEach(function (): void {

@@ -7,6 +7,7 @@ namespace Pokio;
 use Pokio\Contracts\Runtime;
 use Pokio\Runtime\Fork\ForkRuntime;
 use Pokio\Runtime\Sync\SyncRuntime;
+use RuntimeException;
 
 final class Environment
 {
@@ -21,7 +22,7 @@ final class Environment
     public static function useFork(): void
     {
         if (! extension_loaded('pcntl') || ! extension_loaded('posix')) {
-            throw new \RuntimeException('The pcntl and posix extensions are required to use the fork runtime.');
+            throw new RuntimeException('The pcntl and posix extensions are required to use the fork runtime.');
         }
 
         self::$runtime = new ForkRuntime;

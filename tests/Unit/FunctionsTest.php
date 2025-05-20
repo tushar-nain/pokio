@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Tests\HedgehogException;
 
 test('async with a single promise', function (): void {
