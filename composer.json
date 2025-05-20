@@ -54,10 +54,7 @@
             "rector --dry-run",
             "pint --test"
         ],
-        "test:unit": [
-            "POKIO_RUNTIME=sync pest",
-            "POKIO_RUNTIME=fork pest"
-        ],
+        "test:unit": "pest --parallel --coverage --min=64",
         "test:types": "phpstan",
         "test:refactor": "rector --dry-run",
         "test": [

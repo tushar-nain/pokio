@@ -12,7 +12,7 @@ test('async with an exception thrown', function (): void {
 
         await($promise);
     })->toThrow(HedgehogException::class, 'Not enough hedgehogs');
-});
+})->with('runtimes');
 
 test('async with a caught exception', function (): void {
     $promise = async(function (): void {
@@ -27,4 +27,4 @@ test('async with a caught exception', function (): void {
     $result = await($promise);
 
     expect($result)->toEqual('Hedgehogs');
-});
+})->with('runtimes');

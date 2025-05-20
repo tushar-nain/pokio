@@ -1,6 +1,7 @@
 /art               export-ignore
 /docs              export-ignore
 /tests             export-ignore
+/types             export-ignore
 /scripts           export-ignore
 /.github           export-ignore
 /.php_cs           export-ignore

@@ -4,7 +4,9 @@
         "words": [
             "php",
             "pid",
-            "shm"
+            "shm",
+            "pokio",
+            "unserialize"
         ],
         "paths": []
     }

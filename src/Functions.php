@@ -7,6 +7,11 @@ use Pokio\Promise;
 if (! function_exists('async')) {
     /**
      * Runs a callback asynchronously and returns a promise.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return Promise<TReturn>
      */
     function async(Closure $callback, ?Closure $rescue = null): Promise
     {
@@ -17,12 +22,14 @@ if (! function_exists('async')) {
         return $promise;
     }
 }
-
 if (! function_exists('await')) {
     /**
      * Awaits the resolution of a promise.
      *
-     * @param  array<int, Promise>|Promise  $promises
+     * @template TReturn
+     *
+     * @param  array<int, Promise<TReturn>>|Promise<TReturn>  $promises
+     * @return ($promises is array ? array<int, TReturn> : TReturn)
      */
     function await(array|Promise $promises): mixed
     {

@@ -7,12 +7,17 @@ namespace Pokio;
 use Closure;
 use Pokio\Contracts\Result;
 
+/**
+ * @template TReturn
+ */
 final class Promise
 {
     private Result $result;
 
     /**
      * Creates a new promise instance.
+     *
+     * @param  Closure(): TReturn  $callback
      */
     public function __construct(private readonly Closure $callback, private readonly ?Closure $rescue = null)
     {
@@ -28,6 +33,8 @@ final class Promise
 
     /**
      * Resolves the promise.
+     *
+     * @return TReturn
      */
     public function resolve(): mixed
     {
