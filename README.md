@@ -36,11 +36,11 @@ echo $resA; // Task 1
 echo $resB; // Task 2
 ```
 
+## Installation
+
 > **Requires [PHP 8.3+](https://php.net/releases/)**.
 
 > **Note:** This package is a **work in progress (don't use it yet)**.
-
-## Installation
 
 ⚡️ Get started by requiring the package using [Composer](https://getcomposer.org):
 
