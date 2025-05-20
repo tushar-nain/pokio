@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pokio;
 
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
 
-class PokioExceptionHandler
+final class PokioExceptionHandler
 {
     public function __construct(public Throwable $exception)
     {
