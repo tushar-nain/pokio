@@ -14,7 +14,7 @@ final class Promise
     /**
      * Creates a new promise instance.
      */
-    public function __construct(private readonly Closure $callback, private ?Closure $rescue = null)
+    public function __construct(private readonly Closure $callback, private readonly ?Closure $rescue = null)
     {
         //
     }
