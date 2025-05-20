@@ -37,6 +37,10 @@ final readonly class ForkRuntime implements Runtime
             $result = $callback();
             $pipe = fopen($pipePath, 'w');
 
+            if ($pipe === false) {
+                throw new RuntimeException('Failed to open pipe (writing)');
+            }
+
             fwrite($pipe, serialize($result));
             fclose($pipe);
 
