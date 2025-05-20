@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('async with a single promise', function (): void {
     $promise = async(fn (): int => 1 + 2);
 

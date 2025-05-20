@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Pokio\Runtime\Fork;
 
 use Pokio\Contracts\Result;
@@ -39,7 +41,6 @@ final class ForkResult implements Result
             return $this->result;
         }
 
-        // wait for child process to exit
         pcntl_waitpid($this->pid, $status);
 
         $shmId = shmop_open($this->shmKey, 'a', 0, 0);

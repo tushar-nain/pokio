@@ -30,7 +30,7 @@ final readonly class ForkRuntime implements Runtime
 
             $data = serialize($result);
 
-            $shmId = shmop_open($shmKey, 'c', 0600, strlen($data));
+            $shmId = shmop_open($shmKey, 'c', 0600, mb_strlen($data));
 
             if (! $shmId) {
                 throw new RuntimeException('Failed to create shared memory block');
