@@ -27,6 +27,15 @@ final class PokioExceptionHandler
         ];
     }
 
+    /**
+     * @param array{
+     *     message: string,
+     *     class: class-string<Throwable>,
+     *     code: int,
+     *     file: string,
+     *     line: int,
+     * } $data
+     */
     public function __unserialize(array $data)
     {
         $exception = new $data['class']($data['message'], $data['code']);
