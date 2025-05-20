@@ -7,14 +7,16 @@ namespace Pokio\Runtime\Fork;
 use Closure;
 use Pokio\Contracts\Result;
 use Pokio\Contracts\Runtime;
+use Pokio\PokioExceptionHandler;
 use RuntimeException;
+use Throwable;
 
 final readonly class ForkRuntime implements Runtime
 {
     /**
      * Defers the given callback to be executed asynchronously.
      */
-    public function defer(Closure $callback): Result
+    public function defer(Closure $callback, ?Closure $rescue = null): Result
     {
         // random 27-bit positive key
         $shmKey = random_int(0x100000, 0x7FFFFFFF);
@@ -26,7 +28,15 @@ final readonly class ForkRuntime implements Runtime
         }
 
         if ($pid === 0) {
-            $result = $callback();
+            try {
+                $result = $callback();
+            } catch (Throwable $exception) {
+                $result = new PokioExceptionHandler($exception);
+
+                if ($rescue instanceof Closure) {
+                    $result = $rescue($exception);
+                }
+            }
 
             $data = serialize($result);
 

@@ -8,9 +8,9 @@ if (! function_exists('async')) {
     /**
      * Runs a callback asynchronously and returns a promise.
      */
-    function async(Closure $callback): Promise
+    function async(Closure $callback, ?Closure $rescue = null): Promise
     {
-        $promise = new Promise($callback);
+        $promise = new Promise($callback, $rescue);
 
         $promise->run();
 

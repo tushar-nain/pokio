@@ -14,7 +14,7 @@ final class Promise
     /**
      * Creates a new promise instance.
      */
-    public function __construct(private readonly Closure $callback)
+    public function __construct(private readonly Closure $callback, private ?Closure $rescue = null)
     {
         //
     }
@@ -23,7 +23,7 @@ final class Promise
     {
         $runtime = Environment::runtime();
 
-        $this->result = $runtime->defer($this->callback);
+        $this->result = $runtime->defer($this->callback, $this->rescue);
     }
 
     /**
