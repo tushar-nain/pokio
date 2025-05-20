@@ -7,7 +7,6 @@ namespace Pokio\Runtime\Fork;
 use Closure;
 use Pokio\Contracts\Result;
 use Pokio\Contracts\Runtime;
-use Pokio\Support\PipePath;
 use RuntimeException;
 
 final readonly class ForkRuntime implements Runtime
@@ -17,15 +16,8 @@ final readonly class ForkRuntime implements Runtime
      */
     public function defer(Closure $callback): Result
     {
-        $pipePath = PipePath::get();
-
-        if (file_exists($pipePath)) {
-            unlink($pipePath);
-        }
-
-        if (! posix_mkfifo($pipePath, 0600)) {
-            throw new RuntimeException('Failed to create pipe');
-        }
+        // random 27-bit positive key
+        $shmKey = random_int(0x100000, 0x7FFFFFFF);
 
         $pid = pcntl_fork();
 
@@ -35,14 +27,20 @@ final readonly class ForkRuntime implements Runtime
 
         if ($pid === 0) {
             $result = $callback();
-            $pipe = fopen($pipePath, 'w');
 
-            fwrite($pipe, serialize($result));
-            fclose($pipe);
+            $data = serialize($result);
+
+            $shmId = shmop_open($shmKey, 'c', 0600, strlen($data));
+
+            if (! $shmId) {
+                throw new RuntimeException('Failed to create shared memory block');
+            }
+
+            shmop_write($shmId, $data, 0);
 
             exit(0);
         }
 
-        return new ForkResult($pipePath);
+        return new ForkResult($pid, $shmKey);
     }
 }
