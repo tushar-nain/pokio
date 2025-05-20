@@ -7,8 +7,10 @@ namespace Pokio\Runtime\Fork;
 use Closure;
 use Pokio\Contracts\Result;
 use Pokio\Contracts\Runtime;
+use Pokio\PokioExceptionHandler;
 use Pokio\Support\PipePath;
 use RuntimeException;
+use Throwable;
 
 final readonly class ForkRuntime implements Runtime
 {
@@ -34,7 +36,12 @@ final readonly class ForkRuntime implements Runtime
         }
 
         if ($pid === 0) {
-            $result = $callback();
+            try {
+                $result = $callback();
+            } catch (Throwable $e) {
+                $result = new PokioExceptionHandler($e);
+            }
+
             $pipe = fopen($pipePath, 'w');
 
             fwrite($pipe, serialize($result));

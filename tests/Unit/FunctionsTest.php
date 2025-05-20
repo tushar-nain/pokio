@@ -1,5 +1,7 @@
 <?php
 
+use Tests\HedgehogException;
+
 test('async with a single promise', function (): void {
     $promise = async(fn (): int => 1 + 2);
 
@@ -17,4 +19,14 @@ test('async with a multiple promises', function (): void {
 
     expect($resultA)->toBe(3)
         ->and($resultB)->toBe(7);
+});
+
+test('async with an exception thrown', function (): void {
+    expect(function (): void {
+        $promise = async(function (): void {
+            throw new HedgehogException('Not enough hedgehogs');
+        });
+
+        await($promise);
+    })->toThrow(HedgehogException::class, 'Not enough hedgehogs');
 });
