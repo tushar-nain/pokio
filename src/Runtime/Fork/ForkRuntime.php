@@ -8,6 +8,7 @@ use Closure;
 use Pokio\Contracts\Result;
 use Pokio\Contracts\Runtime;
 use Pokio\PokioExceptionHandler;
+use Pokio\Promise;
 use RuntimeException;
 use Throwable;
 
@@ -30,6 +31,10 @@ final readonly class ForkRuntime implements Runtime
         if ($pid === 0) {
             try {
                 $result = $callback();
+
+                if ($result instanceof Promise) {
+                    $result = await($result);
+                }
             } catch (Throwable $exception) {
                 $result = new PokioExceptionHandler($exception);
 

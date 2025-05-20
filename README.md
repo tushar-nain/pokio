@@ -17,7 +17,7 @@
 **Pokio** is a dead simple **PHP Asynchronous** API that just works! Here is an example:
 
 ```php
-$promiseA = async(fn () () {
+$promiseA = async(function () {
     sleep(2);
     
     return 'Task 1';
@@ -50,25 +50,49 @@ composer require nunomaduro/pokio:@dev
 
 ## Usage
 
+- `async`
+
+The `async` global function returns a promise that will eventually resolve the value returned by the given closure.
+
 ```php
-$promiseA = async(function () {
-    sleep(2);
-    
-    return 'Task 1';
+$promise = async(function () {
+    return 1 + 1;
 });
 
-$promiseB = async(function () {
-    sleep(2);
-    
-    return 'Task 2';
-});
-
-// just takes 2 seconds...
-[$resA, $resB] = await([$promiseA, $promiseB]);
-
-echo $resA; // Task 1
-echo $resB; // Task 2
+var_dump(await($promise)); // int(2)
 ```
+
+Optionally, you may chain a `catch` method to the promise, which will be called if the given closure throws an exception.
+
+```php
+$promise = async(function () {
+    throw new Exception('Error');
+})->catch(function (Throwable $e) {
+    return 'Rescued: ' . $e->getMessage();
+});
+
+var_dump(await($promise)); // string(16) "Rescued: Error"
+```
+
+If you don't want to use the `catch` method, you can also use native `try/catch` block.
+
+```php
+$promise = async(function () {
+    throw new Exception('Error');
+});
+
+try {
+    await($promise);
+} catch (Throwable $e) {
+    var_dump('Rescued: ' . $e->getMessage()); // string(16) "Rescued: Error"
+}
+```
+
+- `await`
+
+The `await` global function will block the current process until the given promise resolves.
+
+```php
 
 ## Follow Nuno
 

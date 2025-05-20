@@ -6,6 +6,7 @@ namespace Pokio\Runtime\Sync;
 
 use Closure;
 use Pokio\Contracts\Result;
+use Pokio\Promise;
 use Throwable;
 
 final readonly class SyncResult implements Result
@@ -24,7 +25,13 @@ final readonly class SyncResult implements Result
     public function get(): mixed
     {
         try {
-            return ($this->callback)();
+            $result = ($this->callback)();
+
+            if ($result instanceof Promise) {
+                $result = await($result);
+            }
+
+            return $result;
         } catch (Throwable $exception) {
             if ($this->rescue instanceof Closure) {
                 return ($this->rescue)($exception);
