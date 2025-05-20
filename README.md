@@ -14,7 +14,7 @@
     <a href="https://packagist.org/packages/nunomaduro/pokio"><img src="https://img.shields.io/packagist/l/nunomaduro/pokio" alt="License"></a>
 </p>
 
-**Pokio** is an dead simple **PHP Asynchronous** API that just works! Here is a example:
+**Pokio** is a dead simple **PHP Asynchronous** API that just works! Here is a example:
 
 ```php
 $promiseA = async(fn () () {
