@@ -5,7 +5,7 @@
   </picture>
 </a>
 
-# Essentials
+# Pokio
 
 <p>
     <a href="https://github.com/nunomaduro/pokio/actions"><img src="https://github.com/nunomaduro/pokio/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a>
