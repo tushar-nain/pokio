@@ -21,6 +21,9 @@
         "rector/rector": "^2.0.16",
         "symfony/var-dumper": "^7.2.6"
     },
+    "conflict": {
+        "symplify/easy-parallel": "<11.2.2"
+    },
     "autoload": {
         "psr-4": {
             "Pokio\\": "src/"
