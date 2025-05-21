@@ -60,7 +60,7 @@ test('async with a catch callback', function (): void {
 
 })->with('runtimes');
 
-test('async with a finally callback', function (): void {
+test('async with a finally callback called without exception', function (): void {
     $called = false;
 
     $promise = async(fn (): int => 1 + 2)
@@ -71,6 +71,22 @@ test('async with a finally callback', function (): void {
     $result = await($promise);
 
     expect($result)->toBe(3)->and($called)->toBeTrue();
+})->with('runtimes');
+
+test('async with a finally callback called with exception', function (): void {
+    $called = false;
+
+    $promise = async(function (): void {
+        throw new HedgehogException('Exception 1');
+    })->finally(function () use (&$called): void {
+        $called = true;
+    });
+
+    expect(function () use ($promise): void {
+        await($promise);
+    })->toThrow(HedgehogException::class, 'Exception 1');
+
+    expect($called)->toBeTrue();
 })->with('runtimes');
 
 test('async with a catch callback that throws an exception', function (): void {
