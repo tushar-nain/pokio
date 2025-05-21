@@ -43,12 +43,21 @@ test('async with multiple then callbacks', function (): void {
 })->with('runtimes');
 
 test('async with a catch callback', function (): void {
-    $promise = async(fn (): int => 1 + 2)
-        ->catch(fn (Throwable $e): string => 'Caught: '.$e->getMessage());
+    $caught = false;
 
-    $result = await($promise);
+    $promise = async(function (): void {
+        throw new HedgehogException('Exception 1');
+    })->catch(function (Throwable $th) use (&$caught): void {
+        expect($th)->toBeInstanceOf(HedgehogException::class)
+            ->and($th->getMessage())->toBe('Exception 1');
 
-    expect($result)->toBe(3);
+        $caught = true;
+    });
+
+    await($promise);
+
+    expect($caught)->toBeTrue();
+
 })->with('runtimes');
 
 test('async with a finally callback', function (): void {
