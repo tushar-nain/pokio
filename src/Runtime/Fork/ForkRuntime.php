@@ -85,7 +85,7 @@ final class ForkRuntime implements Runtime
     {
         $pid = pcntl_wait($status);
         if ($pid > 0) {
-            self::$processes = array_filter(self::$processes, fn ($p) => $p !== $pid);
+            self::$processes = array_filter(self::$processes, fn (int $p) => $p !== $pid);
         }
     }
 }

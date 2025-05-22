@@ -12,18 +12,18 @@ use RuntimeException;
  */
 final readonly class IPC
 {
-    private const FILE_PREFIX = '/tmp/ipc_mem_';
+    private const string FILE_PREFIX = '/tmp/ipc_mem_';
 
     // POSIX constants
-    private const O_RDWR = 0x0002;
+    private const int O_RDWR = 0x0002;
 
-    private const O_CREAT = 0x0040;
+    private const int O_CREAT = 0x0040;
 
-    private const PROT_READ = 0x1;
+    private const int PROT_READ = 0x1;
 
-    private const PROT_WRITE = 0x2;
+    private const int PROT_WRITE = 0x2;
 
-    private const MAP_SHARED = 0x01;
+    private const int MAP_SHARED = 0x01;
 
     /**
      * Creates a new IPC memory block using a memory-mapped file.

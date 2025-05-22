@@ -51,7 +51,7 @@
             "rector",
             "pint"
         ],
-        "test:type-coverage": "pest --type-coverage --exactly=100",
+        "test:type-coverage": "pest --type-coverage --min=100",
         "test:typos": "peck",
         "test:lint": [
             "pint --test"
