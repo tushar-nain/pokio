@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pokio\Runtime\Fork;
 
 use Closure;
-use Pokio\Contracts\Result;
+use Pokio\Contracts\Future;
 use Pokio\Contracts\Runtime;
 use Pokio\PokioExceptionHandler;
 use Pokio\Promise;
@@ -15,12 +15,16 @@ use Throwable;
 final readonly class ForkRuntime implements Runtime
 {
     /**
-     * Defers the given callback to be executed asynchronously.
+     *  Defers the given callback to be executed asynchronously.
+     *
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $callback
+     * @return Future<TResult>
      */
-    public function defer(Closure $callback): Result
+    public function defer(Closure $callback): Future
     {
-        // random 27-bit positive key
-        $shmKey = random_int(0x100000, 0x7FFFFFFF);
+        $sharedMemory = IPC::create();
 
         $pid = pcntl_fork();
 
@@ -41,17 +45,14 @@ final readonly class ForkRuntime implements Runtime
 
             $data = serialize($result);
 
-            $shmId = shmop_open($shmKey, 'c', 0600, mb_strlen($data));
-
-            if (! $shmId) {
-                throw new RuntimeException('Failed to create shared memory block');
-            }
-
-            shmop_write($shmId, $data, 0);
+            $sharedMemory->put($data);
 
             exit(0);
         }
 
-        return new ForkResult($pid, $shmKey);
+        /** @var ForkFuture<TResult> $future */
+        $future = new ForkFuture($pid, $sharedMemory);
+
+        return $future;
     }
 }

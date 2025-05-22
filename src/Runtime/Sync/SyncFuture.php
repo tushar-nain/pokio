@@ -5,13 +5,22 @@ declare(strict_types=1);
 namespace Pokio\Runtime\Sync;
 
 use Closure;
-use Pokio\Contracts\Result;
+use Pokio\Contracts\Future;
 use Pokio\Promise;
 
-final readonly class SyncResult implements Result
+/**
+ * @internal
+ *
+ * @template TResult
+ *
+ * @implements Future<TResult>
+ */
+final readonly class SyncFuture implements Future
 {
     /**
      * Creates a new sync result instance.
+     *
+     * @param  Closure(): TResult  $callback
      */
     public function __construct(private Closure $callback)
     {
@@ -19,9 +28,11 @@ final readonly class SyncResult implements Result
     }
 
     /**
-     * Resolves the result.
+     * Awaits the result of the future.
+     *
+     * @return TResult
      */
-    public function get(): mixed
+    public function await(): mixed
     {
         $result = ($this->callback)();
 

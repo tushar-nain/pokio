@@ -41,6 +41,10 @@ final class Environment
      */
     public static function runtime(): Runtime
     {
+        if (Kernel::instance()->isOrchestrator() === false) {
+            return new SyncRuntime();
+        }
+
         $areExtensionsAvailable = extension_loaded('pcntl') && extension_loaded('posix');
 
         return self::$runtime ??= $areExtensionsAvailable

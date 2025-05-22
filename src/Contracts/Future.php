@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace Pokio\Contracts;
 
-interface Result
+/**
+ * @internal
+ *
+ * @template TResult
+ */
+interface Future
 {
     /**
      * The result of the asynchronous operation.
+     *
+     * @return TResult
      */
-    public function get(): mixed;
+    public function await(): mixed;
 }

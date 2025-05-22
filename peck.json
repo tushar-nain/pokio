@@ -7,7 +7,9 @@
             "shm",
             "pokio",
             "unserialize",
-            "catchable"
+            "catchable",
+            "ipc",
+            "orchestrator"
         ],
         "paths": []
     }

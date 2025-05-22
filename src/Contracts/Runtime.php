@@ -10,6 +10,11 @@ interface Runtime
 {
     /**
      * Defers the given callback to be executed asynchronously.
+     *
+     * @template TResult
+     *
+     * @param  Closure(): TResult  $callback
+     * @return Future<TResult>
      */
-    public function defer(Closure $callback): Result;
+    public function defer(Closure $callback): Future;
 }

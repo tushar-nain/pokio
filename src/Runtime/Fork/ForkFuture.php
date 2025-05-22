@@ -4,16 +4,24 @@ declare(strict_types=1);
 
 namespace Pokio\Runtime\Fork;
 
-use Pokio\Contracts\Result;
-use RuntimeException;
+use Pokio\Contracts\Future;
 
 /**
  * Represents the result of a forked process.
+ *
+ *
+ * @template TResult
+ *
+ * @implements Future<TResult>
+ *
+ * @internal
  */
-final class ForkResult implements Result
+final class ForkFuture implements Future
 {
     /**
      * The result of the forked process, if any.
+     *
+     * @var TResult
      */
     private mixed $result = null;
 
@@ -27,15 +35,17 @@ final class ForkResult implements Result
      */
     public function __construct(
         private readonly int $pid,
-        private readonly int $shmKey,
+        private readonly IPC $memory,
     ) {
         //
     }
 
     /**
-     * The result of the asynchronous operation.
+     * Awaits the result of the future.
+     *
+     * @return TResult
      */
-    public function get(): mixed
+    public function await(): mixed
     {
         if ($this->resolved) {
             return $this->result;
@@ -43,18 +53,11 @@ final class ForkResult implements Result
 
         pcntl_waitpid($this->pid, $status);
 
-        $shmId = shmop_open($this->shmKey, 'a', 0, 0);
-
-        if (! $shmId) {
-            throw new RuntimeException('Failed to open shared memory block');
-        }
-
-        $data = shmop_read($shmId, 0, shmop_size($shmId));
-
-        shmop_delete($shmId);
-
         $this->resolved = true;
 
-        return $this->result = unserialize($data);
+        /** @var TResult $result */
+        $result = unserialize($this->memory->pop());
+
+        return $this->result = $result;
     }
 }

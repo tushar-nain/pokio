@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pokio;
 
 use Closure;
-use Pokio\Contracts\Result;
+use Pokio\Contracts\Future;
 use Pokio\Support\Reflection;
 use Throwable;
 
@@ -14,7 +14,12 @@ use Throwable;
  */
 final class Promise
 {
-    private Result $result;
+    /**
+     * The result of the asynchronous operation.
+     *
+     * @var Future<TReturn>
+     */
+    private Future $future;
 
     /**
      * Creates a new promise instance.
@@ -30,7 +35,7 @@ final class Promise
     {
         $runtime = Environment::runtime();
 
-        $this->result = $runtime->defer($this->callback);
+        $this->future = $runtime->defer($this->callback);
     }
 
     /**
@@ -40,7 +45,7 @@ final class Promise
      */
     public function resolve(): mixed
     {
-        return $this->result->get();
+        return $this->future->await();
     }
 
     /**
