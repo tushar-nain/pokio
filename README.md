@@ -62,6 +62,18 @@ $promise = async(function () {
 var_dump(await($promise)); // int(2)
 ```
 
+Similar to other promise libraries, Pokio allows you to chain methods to the promise (like `then`, `catch`, etc.).
+
+The `then` method will be called when the promise resolves successfully. It accepts a closure that will receive the resolved value as its first argument.
+
+```php
+$promise = async(fn (): int => 1 + 2)
+    ->then(fn ($result): int => $result + 2)
+    ->then(fn ($result): int => $result * 2);
+
+$result = await($promise);
+var_dump($result); // int(10)
+```
 Optionally, you may chain a `catch` method to the promise, which will be called if the given closure throws an exception.
 
 ```php
@@ -86,6 +98,16 @@ try {
 } catch (Throwable $e) {
     var_dump('Rescued: ' . $e->getMessage()); // string(16) "Rescued: Error"
 }
+```
+
+Similar to the `catch` method, you may also chain a `finally` method to the promise, which will be called regardless of whether the promise resolves successfully or throws an exception.
+
+```php
+$promise = async(function (): void {
+    throw new HedgehogException('Exception 1');
+})->finally(function () use (&$called): void {
+    echo "Finally called\n";
+});
 ```
 
 If you return a promise from the closure, it will be awaited automatically.
