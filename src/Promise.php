@@ -17,28 +17,11 @@ final class Promise
     private Result $result;
 
     /**
-     * A list of then callbacks.
-     *
-     * @var array<Closure(TReturn): TReturn>
-     */
-    private array $then = [];
-
-    /**
-     * @var Closure(Throwable): void|null
-     */
-    private ?Closure $catch = null;
-
-    /**
-     * @var Closure(): void|null
-     */
-    private ?Closure $finally = null;
-
-    /**
      * Creates a new promise instance.
      *
      * @param  Closure(): TReturn  $callback
      */
-    public function __construct(private readonly Closure $callback, private readonly ?Closure $rescue = null)
+    public function __construct(private readonly Closure $callback)
     {
         //
     }
@@ -47,7 +30,7 @@ final class Promise
     {
         $runtime = Environment::runtime();
 
-        $this->result = $runtime->defer($this->callback, $this->rescue);
+        $this->result = $runtime->defer($this->callback);
     }
 
     /**
@@ -57,67 +40,75 @@ final class Promise
      */
     public function resolve(): mixed
     {
-        $result = null;
-
-        try {
-            $result = $this->result->get();
-
-            foreach ($this->then as $then) {
-                $result = $then($result);
-            }
-
-            return $result;
-        } catch (Throwable $throwable) {
-            if ($this->catch !== null && Reflection::isCatchable($this->catch, $throwable)) {
-                ($this->catch)($throwable);
-
-                return $result;
-            }
-
-            throw $throwable;
-        } finally {
-            if ($this->finally !== null) {
-                ($this->finally)();
-            }
-        }
+        return $this->result->get();
     }
 
     /**
      * Adds a then callback to the promise.
      *
-     * @param  Closure(): TReturn  $then
-     * @return Promise<TReturn>
+     * @template TThenReturn
+     *
+     * @param  Closure(TReturn): TThenReturn  $then
+     * @return self<TThenReturn>
      */
     public function then(Closure $then): self
     {
-        $this->then[] = $then;
+        $callback = $this->callback;
 
-        return $this;
+        // @phpstan-ignore-next-line
+        return new self(function () use ($callback, $then) {
+            $result = $callback();
+
+            if ($result instanceof Promise) {
+                // @phpstan-ignore-next-line
+                return $result->then($then);
+            }
+
+            return $then($result);
+        });
     }
 
     /**
      * Adds a catch callback to the promise.
      *
-     * @param  Closure(Throwable): void  $catch
-     * @return Promise<TReturn>
+     * @template TCatchReturn
+     *
+     * @param  Closure(Throwable): TCatchReturn  $catch
+     * @return self<TReturn|TCatchReturn>
      */
     public function catch(Closure $catch): self
     {
-        $this->catch = $catch;
+        $callback = $this->callback;
 
-        return $this;
+        return new self(function () use ($callback, $catch) {
+            try {
+                return $callback();
+            } catch (Throwable $throwable) {
+                if (! Reflection::isCatchable($catch, $throwable)) {
+                    throw $throwable;
+                }
+
+                return ($catch)($throwable);
+            }
+        });
     }
 
     /**
      * Adds a finally callback to the promise.
      *
      * @param  Closure(): void  $finally
-     * @return Promise<TReturn>
+     * @return self<TReturn>
      */
     public function finally(Closure $finally): self
     {
-        $this->finally = $finally;
+        $callback = $this->callback;
 
-        return $this;
+        return new self(function () use ($callback, $finally) {
+            try {
+                return $callback();
+            } finally {
+                ($finally)();
+            }
+        });
     }
 }

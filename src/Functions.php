@@ -13,13 +13,9 @@ if (! function_exists('async')) {
      * @param  Closure(): TReturn  $callback
      * @return Promise<TReturn>
      */
-    function async(Closure $callback, ?Closure $rescue = null): Promise
+    function async(Closure $callback): Promise
     {
-        $promise = new Promise($callback, $rescue);
-
-        $promise->run();
-
-        return $promise;
+        return new Promise($callback);
     }
 }
 if (! function_exists('await')) {
@@ -34,7 +30,13 @@ if (! function_exists('await')) {
     function await(array|Promise $promises): mixed
     {
         if (! is_array($promises)) {
+            $promises->run();
+
             return $promises->resolve();
+        }
+
+        foreach ($promises as $promise) {
+            $promise->run();
         }
 
         return array_map(

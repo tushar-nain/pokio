@@ -6,7 +6,8 @@
             "pid",
             "shm",
             "pokio",
-            "unserialize"
+            "unserialize",
+            "catchable"
         ],
         "paths": []
     }

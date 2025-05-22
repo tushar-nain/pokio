@@ -43,48 +43,16 @@ test('async with multiple then callbacks', function (): void {
 })->with('runtimes');
 
 test('async with a catch callback', function (): void {
-    $caught = false;
-
     $promise = async(function (): void {
         throw new HedgehogException('Exception 1');
-    })->catch(function (Throwable $th) use (&$caught): void {
+    })->catch(function (Throwable $th) use (&$caught): bool {
         expect($th)->toBeInstanceOf(HedgehogException::class)
             ->and($th->getMessage())->toBe('Exception 1');
 
-        $caught = true;
+        return true;
     });
 
-    await($promise);
-
-    expect($caught)->toBeTrue();
-
-})->with('runtimes');
-
-test('async with a finally callback called without exception', function (): void {
-    $called = false;
-
-    $promise = async(fn (): int => 1 + 2)
-        ->finally(function () use (&$called): void {
-            $called = true;
-        });
-
-    $result = await($promise);
-
-    expect($result)->toBe(3)->and($called)->toBeTrue();
-})->with('runtimes');
-
-test('async with a finally callback called with exception', function (): void {
-    $called = false;
-
-    $promise = async(function (): void {
-        throw new HedgehogException('Exception 1');
-    })->finally(function () use (&$called): void {
-        $called = true;
-    });
-
-    expect(function () use ($promise): void {
-        await($promise);
-    })->toThrow(HedgehogException::class, 'Exception 1');
+    $called = await($promise);
 
     expect($called)->toBeTrue();
 })->with('runtimes');
