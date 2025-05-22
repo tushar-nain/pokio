@@ -6,6 +6,7 @@ namespace Pokio;
 
 use Closure;
 use Pokio\Contracts\Result;
+use Pokio\Support\Reflection;
 use Throwable;
 
 /**
@@ -66,14 +67,14 @@ final class Promise
             }
 
             return $result;
-        } catch (Throwable $th) {
-            if ($this->catch !== null) {
-                ($this->catch)($th);
+        } catch (Throwable $throwable) {
+            if ($this->catch !== null && Reflection::isCatchable($this->catch, $throwable)) {
+                ($this->catch)($throwable);
 
                 return $result;
             }
 
-            throw $th;
+            throw $throwable;
         } finally {
             if ($this->finally !== null) {
                 ($this->finally)();
@@ -84,7 +85,7 @@ final class Promise
     /**
      * Adds a then callback to the promise.
      *
-     * @param  Closure(TReturn): TReturn  $then
+     * @param  Closure(): TReturn  $then
      * @return Promise<TReturn>
      */
     public function then(Closure $then): self
