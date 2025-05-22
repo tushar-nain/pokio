@@ -11,6 +11,8 @@ use Throwable;
 
 /**
  * @template TReturn
+ *
+ * @internal
  */
 final class Promise
 {
@@ -31,11 +33,12 @@ final class Promise
         //
     }
 
-    public function run(): void
+    /**
+     * Defer the given callback to be executed asynchronously.
+     */
+    public function defer(): void
     {
-        $runtime = Environment::runtime();
-
-        $this->future = $runtime->defer($this->callback);
+        $this->future = Environment::runtime()->defer($this->callback);
     }
 
     /**

@@ -9,6 +9,9 @@ use Pokio\Runtime\Fork\ForkRuntime;
 use Pokio\Runtime\Sync\SyncRuntime;
 use RuntimeException;
 
+/**
+ * @internal
+ */
 final class Environment
 {
     /**

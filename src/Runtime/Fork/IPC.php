@@ -6,6 +6,9 @@ namespace Pokio\Runtime\Fork;
 
 use RuntimeException;
 
+/**
+ * @internal
+ */
 final readonly class IPC
 {
     /**
@@ -17,6 +20,9 @@ final readonly class IPC
         //
     }
 
+    /**
+     * Creates an inter-process communication (IPC) memory block.
+     */
     public static function create(): self
     {
         return new self(
@@ -38,6 +44,9 @@ final readonly class IPC
         shmop_write($block, $data, 0);
     }
 
+    /**
+     * Pops the contents of the memory block and clears it.
+     */
     public function pop(): string
     {
         $block = shmop_open($this->address, 'a', 0, 0);

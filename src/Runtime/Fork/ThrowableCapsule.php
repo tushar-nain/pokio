@@ -2,19 +2,36 @@
 
 declare(strict_types=1);
 
-namespace Pokio;
+namespace Pokio\Runtime\Fork;
 
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
 
-final class PokioExceptionHandler
+/**
+ * @internal
+ */
+final class ThrowableCapsule
 {
+    /**
+     * Creates a new throwable capsule instance.
+     */
     public function __construct(public Throwable $exception)
     {
         //
     }
 
+    /**
+     * Serializes the throwable capsule.
+     *
+     * @return array{
+     *     message: string,
+     *     class: class-string<Throwable>,
+     *     code: int,
+     *     file: string,
+     *     line: int,
+     * }
+     */
     public function __serialize(): array
     {
         return [

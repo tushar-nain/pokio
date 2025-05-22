@@ -7,7 +7,6 @@ namespace Pokio\Runtime\Fork;
 use Closure;
 use Pokio\Contracts\Future;
 use Pokio\Contracts\Runtime;
-use Pokio\PokioExceptionHandler;
 use Pokio\Promise;
 use RuntimeException;
 use Throwable;
@@ -40,7 +39,7 @@ final readonly class ForkRuntime implements Runtime
                     $result = await($result);
                 }
             } catch (Throwable $exception) {
-                $result = new PokioExceptionHandler($exception);
+                $result = new ThrowableCapsule($exception);
             }
 
             $data = serialize($result);
