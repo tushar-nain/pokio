@@ -11,10 +11,28 @@ use Pokio\Promise;
 use RuntimeException;
 use Throwable;
 
-final readonly class ForkRuntime implements Runtime
+/**
+ * @internal
+ */
+final class ForkRuntime implements Runtime
 {
     /**
-     *  Defers the given callback to be executed asynchronously.
+     * The PIDs of the currently running processes.
+     *
+     * @var array<int, int>
+     */
+    private static array $processes = [];
+
+    /**
+     * Creates a new fork runtime instance.
+     */
+    public function __construct(private int $maxProcesses)
+    {
+        //
+    }
+
+    /**
+     * Defers the given callback to be executed asynchronously.
      *
      * @template TResult
      *
@@ -23,8 +41,11 @@ final readonly class ForkRuntime implements Runtime
      */
     public function defer(Closure $callback): Future
     {
-        $sharedMemory = IPC::create();
+        while (count(self::$processes) >= $this->maxProcesses) {
+            $this->waitForProcess();
+        }
 
+        $ipc = IPC::create();
         $pid = pcntl_fork();
 
         if ($pid === -1) {
@@ -44,14 +65,27 @@ final readonly class ForkRuntime implements Runtime
 
             $data = serialize($result);
 
-            $sharedMemory->put($data);
+            $ipc->put($data);
 
             exit(0);
         }
 
-        /** @var ForkFuture<TResult> $future */
-        $future = new ForkFuture($pid, $sharedMemory);
+        self::$processes[] = $pid;
+
+        /** @var Future<TResult> $future */
+        $future = new ForkFuture($pid, $ipc); // @phpstan-ignore-line
 
         return $future;
+    }
+
+    /**
+     * Waits for a process to finish and removes it from the list of processes.
+     */
+    private function waitForProcess(): void
+    {
+        $pid = pcntl_wait($status);
+        if ($pid > 0) {
+            self::$processes = array_filter(self::$processes, fn ($p) => $p !== $pid);
+        }
     }
 }

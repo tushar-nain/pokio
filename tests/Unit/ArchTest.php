@@ -7,6 +7,7 @@ arch()->preset()->strict();
 arch()->preset()->security()->ignoring([
     'serialize',
     'unserialize',
+    'shell_exec',
 ]);
 
 arch('base')

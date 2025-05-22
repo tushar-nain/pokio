@@ -9,7 +9,6 @@ use Pokio\Contracts\Future;
 /**
  * Represents the result of a forked process.
  *
- *
  * @template TResult
  *
  * @implements Future<TResult>

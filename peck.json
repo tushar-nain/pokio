@@ -9,7 +9,12 @@
             "unserialize",
             "catchable",
             "ipc",
-            "orchestrator"
+            "orchestrator",
+            "ds",
+            "libc",
+            "rdwr",
+            "creat",
+            "prot"
         ],
         "paths": []
     }

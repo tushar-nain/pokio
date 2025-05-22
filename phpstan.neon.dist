@@ -5,3 +5,9 @@ parameters:
         - types
 
     reportUnmatchedIgnoredErrors: true
+
+    ignoreErrors:
+        - '#Call to an undefined method FFI::#'
+        - '#undefined property FFI#'
+        - '#of static method FFI#'
+        - '#of method FFI#'

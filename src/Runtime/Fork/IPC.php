@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pokio\Runtime\Fork;
 
+use FFI;
 use RuntimeException;
 
 /**
@@ -11,54 +12,112 @@ use RuntimeException;
  */
 final readonly class IPC
 {
+    private const FILE_PREFIX = '/tmp/ipc_mem_';
+
+    // POSIX constants
+    private const O_RDWR = 0x0002;
+
+    private const O_CREAT = 0x0040;
+
+    private const PROT_READ = 0x1;
+
+    private const PROT_WRITE = 0x2;
+
+    private const MAP_SHARED = 0x01;
+
     /**
-     * Creates a new memory block.
+     * Creates a new IPC memory block using a memory-mapped file.
      */
     private function __construct(
-        private int $address,
+        private string $path,
     ) {
         //
     }
 
     /**
-     * Creates an inter-process communication (IPC) memory block.
+     * Creates a new IPC memory block using a memory-mapped file.
      */
     public static function create(): self
     {
-        return new self(
-            random_int(0x100000, 0x7FFFFFFF),
-        );
+        $id = bin2hex(random_bytes(8));
+        $path = self::FILE_PREFIX.$id;
+        touch($path);
+
+        return new self($path);
     }
 
     /**
-     * Reads the contents of the memory block.
+     * Writes data to the memory block.
      */
     public function put(string $data): void
     {
-        $block = shmop_open($this->address, 'c', 0600, mb_strlen($data));
+        $ffi = self::libc();
+        $length = mb_strlen($data, '8bit');
 
-        if ($block === false) {
-            throw new RuntimeException('Failed to create shared memory block');
+        $fd = $ffi->open($this->path, self::O_RDWR | self::O_CREAT, 0600);
+        if ($fd < 0) {
+            throw new RuntimeException('Failed to open file for writing');
         }
 
-        shmop_write($block, $data, 0);
+        $ffi->ftruncate($fd, $length);
+
+        $ptr = $ffi->mmap(null, $length, self::PROT_READ | self::PROT_WRITE, self::MAP_SHARED, $fd, 0);
+        if ($ffi->cast('intptr_t', $ptr)->cdata === -1) {
+            throw new RuntimeException('mmap failed to write');
+        }
+
+        $ffi->memcpy($ptr, $data, $length);
+        $ffi->munmap($ptr, $length);
+        $ffi->close($fd);
     }
 
     /**
-     * Pops the contents of the memory block and clears it.
+     * Reads and clears data from the memory block.
      */
     public function pop(): string
     {
-        $block = shmop_open($this->address, 'a', 0, 0);
+        $ffi = self::libc();
 
-        if ($block === false) {
-            throw new RuntimeException('Failed to open shared memory block');
+        $fd = $ffi->open($this->path, self::O_RDWR, 0600);
+        if ($fd < 0) {
+            throw new RuntimeException('Failed to open file for reading');
         }
 
-        $data = shmop_read($block, 0, shmop_size($block));
+        $length = filesize($this->path);
 
-        shmop_delete($block);
+        $ptr = $ffi->mmap(null, $length, self::PROT_READ, self::MAP_SHARED, $fd, 0);
+        if ($ffi->cast('intptr_t', $ptr)->cdata === -1) {
+            throw new RuntimeException('mmap failed to read');
+        }
+
+        $data = FFI::string($ptr, $length);
+        $ffi->munmap($ptr, $length);
+        $ffi->close($fd);
+        unlink($this->path);
 
         return $data;
+    }
+
+    /**
+     * Loads libc and defines function bindings.
+     */
+    private static function libc(): FFI
+    {
+        static $ffi = null;
+
+        if ($ffi === null) {
+            $lib = PHP_OS_FAMILY === 'Darwin' ? 'libc.dylib' : 'libc.so.6';
+
+            $ffi = FFI::cdef('
+                void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset);
+                int munmap(void* addr, size_t length);
+                int open(const char *pathname, int flags, int mode);
+                int close(int fd);
+                int ftruncate(int fd, off_t length);
+                void* memcpy(void* dest, const void* src, size_t n);
+            ', $lib);
+        }
+
+        return $ffi; // @phpstan-ignore-line
     }
 }
