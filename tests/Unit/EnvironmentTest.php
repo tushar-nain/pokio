@@ -22,7 +22,7 @@ test('environment get total memory for linux without meminfo', function (): void
 
     expect(fn () => $reflectionMethod->invokeArgs(null, ['Linux', null]))
         ->toThrow(RuntimeException::class, 'Unable to determine total memory on Linux');
-});
+})->skip(fn () => PHP_OS_FAMILY === 'Linux', 'For Linux this actually falls back to /proc/meminfo');
 
 test('environment get total memory for darwin', function (): void {
     $reflection = new ReflectionClass(Environment::class);
