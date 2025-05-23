@@ -17,26 +17,17 @@ final class Environment
     public static function maxProcesses(): int
     {
         $cpuCores = (int) shell_exec('getconf _NPROCESSORS_ONLN');
+
+        // @codeCoverageIgnoreStart
         if ($cpuCores <= 0) {
             $cpuCores = 1;
         }
+        // @codeCoverageIgnoreEnd
 
         $ioFactor = (int) getenv('FORK_IO_FACTOR') ?: 3;
         $maxByCpu = $cpuCores * $ioFactor;
 
-        $os = PHP_OS_FAMILY;
-        if ($os === 'Linux') {
-            $memInfo = @file_get_contents('/proc/meminfo');
-            // @phpstan-ignore-next-line
-            if (! preg_match('/MemTotal:\s+(\d+) kB/', $memInfo, $matches)) {
-                throw new RuntimeException('Unable to determine total memory on Linux');
-            }
-            $totalMemory = (int) $matches[1] * 1024;
-        } elseif ($os === 'Darwin') {
-            $totalMemory = (int) shell_exec('sysctl -n hw.memsize');
-        } else {
-            throw new RuntimeException("Unsupported OS: $os");
-        }
+        $totalMemory = self::getTotalMemory(PHP_OS_FAMILY);
 
         $perProcessMemory = (int) getenv('FORK_MEM_PER_PROC') ?: 100 * 1024 * 1024; // 100MB
         $maxByMemory = intdiv($totalMemory, $perProcessMemory);
@@ -44,6 +35,31 @@ final class Environment
         $maxProcesses = min($maxByCpu, $maxByMemory);
 
         return max(1, $maxProcesses);
+    }
+
+    /**
+     * Get the total memory of the system in bytes.
+     *
+     * @param string $os (default: PHP_OS_FAMILY) The operating system family.
+     * @param string|null $memInfo (default: null) The memory information string (used for testing on linux).
+     */
+    private static function getTotalMemory(string $os = PHP_OS_FAMILY, ?string $memInfo = null): int
+    {
+        if ($os === 'Linux') {
+            $memInfo = $memInfo ?? @file_get_contents('/proc/meminfo');
+
+            if (!$memInfo || !preg_match('/MemTotal:\s+(\d+) kB/', $memInfo, $matches)) {
+                throw new RuntimeException('Unable to determine total memory on Linux');
+            }
+
+            return (int) $matches[1] * 1024;
+        }
+
+        if ($os === 'Darwin') {
+            return (int) shell_exec('sysctl -n hw.memsize');
+        }
+
+        throw new RuntimeException("Unsupported OS: $os");
     }
 
     /**
