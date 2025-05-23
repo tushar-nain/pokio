@@ -1,3 +1,5 @@
+> **Caution**: This package is a **work in progress** and it manipulates process lifecycles using low-level and potentially unsafe techniques such as FFI for inter-process communication, forcefully bypassing destructors, and preserving state across process spawns. It is intended strictly for internal use (e.g., performance optimizations in Pest). **Use at your own risk**—no guarantees are provided.
+
 <a href="https://nunomaduro.com/">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="art/header-dark.png">
@@ -39,8 +41,6 @@ echo $resB; // Task 2
 ## Installation
 
 > **Requires [PHP 8.3+](https://php.net/releases/)**.
-
-> **Note:** This package is a **work in progress (don't use it yet)**.
 
 ⚡️ Get started by requiring the package using [Composer](https://getcomposer.org):
 
