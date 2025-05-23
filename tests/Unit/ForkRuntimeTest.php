@@ -18,4 +18,4 @@ test('fork runtime waits if there are too many processes', function (): void {
 
     $results = await($promises);
     expect($results)->toHaveCount($numberOfProcesses);
-})->with('runtimes');
+})->with('runtimes')->skip(fn () => ! Environment::supportsFork(), 'Fork runtime is not supported on this environment.');
