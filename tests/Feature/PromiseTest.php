@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Tests\Fixtures\Exceptions\HedgehogException;
-
 test('async with a single promise', function (): void {
     $promise = async(fn (): int => 1 + 2);
 
@@ -45,18 +43,18 @@ test('async with multiple then callbacks', function (): void {
 test('async with an exception and no catch throws exception', function (): void {
     expect(function (): void {
         $promise = async(function (): void {
-            throw new HedgehogException('Not enough hedgehogs');
+            throw new RuntimeException('Exception 1');
         });
 
         await($promise);
-    })->toThrow(HedgehogException::class, 'Not enough hedgehogs');
+    })->toThrow(RuntimeException::class, 'Exception 1');
 })->with('runtimes');
 
 test('async with a catch callback', function (): void {
     $promise = async(function (): void {
-        throw new HedgehogException('Exception 1');
+        throw new RuntimeException('Exception 1');
     })->catch(function (Throwable $th) use (&$caught): bool {
-        expect($th)->toBeInstanceOf(HedgehogException::class)
+        expect($th)->toBeInstanceOf(RuntimeException::class)
             ->and($th->getMessage())->toBe('Exception 1');
 
         return true;
@@ -69,14 +67,14 @@ test('async with a catch callback', function (): void {
 
 test('async with a catch callback that throws an exception', function (): void {
     $promise = async(function (): void {
-        throw new HedgehogException('Exception 1');
+        throw new RuntimeException('Exception 1');
     })->catch(function (Throwable $th): void {
-        throw new HedgehogException('Exception 2');
+        throw new RuntimeException('Exception 2');
     });
 
     expect(function () use ($promise): void {
         await($promise);
-    })->toThrow(HedgehogException::class, 'Exception 2');
+    })->toThrow(RuntimeException::class, 'Exception 2');
 })->with('runtimes');
 
 test('async with a finally callback', function (): void {
@@ -101,14 +99,14 @@ test('finally is called after exception', function (): void {
     $path = stream_get_meta_data($tmpfile)['uri'];
 
     $promise = async(function () {
-        throw new HedgehogException('Exception 1');
+        throw new RuntimeException('Exception 1');
     })->finally(function () use (&$path): void {
         file_put_contents($path, 'called');
     });
 
     expect(function () use ($promise): void {
         await($promise);
-    })->toThrow(HedgehogException::class, 'Exception 1');
+    })->toThrow(RuntimeException::class, 'Exception 1');
 
     expect(file_get_contents($path))->toBe('called');
 
