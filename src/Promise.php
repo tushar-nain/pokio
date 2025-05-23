@@ -38,7 +38,7 @@ final class Promise
      */
     public function defer(): void
     {
-        $this->future = Kernel::instance()->runtime()->defer($this->callback);
+        $this->future ??= Kernel::instance()->runtime()->defer($this->callback);
     }
 
     /**
