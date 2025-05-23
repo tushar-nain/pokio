@@ -64,6 +64,7 @@ final readonly class IPC
         $ptr = $ffi->mmap(null, $length, self::PROT_READ | self::PROT_WRITE, self::MAP_SHARED, $fd, 0);
         $intptr = $ffi->cast('intptr_t', $ptr);
 
+        // @phpstan-ignore-next-line
         if ($intptr === null || $intptr->cdata === -1) {
             throw new RuntimeException('mmap failed to write');
         }
@@ -90,6 +91,7 @@ final readonly class IPC
         $ptr = $ffi->mmap(null, $length, self::PROT_READ, self::MAP_SHARED, $fd, 0);
         $intptr = $ffi->cast('intptr_t', $ptr);
 
+        // @phpstan-ignore-next-line
         if ($intptr === null || $intptr->cdata === -1) {
             throw new RuntimeException('mmap failed to read');
         }
