@@ -66,6 +66,7 @@ final class ForkRuntime implements Runtime
         }
 
         if ($pid === 0) {
+            // @codeCoverageIgnoreStart
             try {
                 $result = $callback();
 
@@ -82,6 +83,7 @@ final class ForkRuntime implements Runtime
 
             posix_kill(posix_getpid(), SIGKILL);
             exit(0);
+            // @codeCoverageIgnoreEnd
         }
 
         self::$processes[$pid] = true;

@@ -51,6 +51,7 @@ final readonly class IPC
      */
     public function put(string $data): void
     {
+        // @codeCoverageIgnoreStart
         $ffi = self::libc();
         $length = mb_strlen($data, '8bit');
 
@@ -72,6 +73,7 @@ final readonly class IPC
         $ffi->memcpy($ptr, $data, $length);
         $ffi->munmap($ptr, $length);
         $ffi->close($fd);
+        // @codeCoverageIgnoreEnd
     }
 
     /**
