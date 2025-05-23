@@ -16,7 +16,7 @@ final class ThrowableCapsule
     /**
      * Creates a new throwable capsule instance.
      */
-    public function __construct(public Throwable $exception)
+    public function __construct(public Throwable $throwable)
     {
         //
     }
@@ -35,12 +35,12 @@ final class ThrowableCapsule
     public function __serialize(): array
     {
         return [
-            'message' => $this->exception->getMessage(),
-            'code' => $this->exception->getCode(),
-            'file' => $this->exception->getFile(),
-            'line' => $this->exception->getLine(),
-            'trace' => $this->exception->getTraceAsString(),
-            'class' => $this->exception::class,
+            'message' => $this->throwable->getMessage(),
+            'code' => $this->throwable->getCode(),
+            'file' => $this->throwable->getFile(),
+            'line' => $this->throwable->getLine(),
+            'trace' => $this->throwable->getTraceAsString(),
+            'class' => $this->throwable::class,
         ];
     }
 
@@ -55,22 +55,27 @@ final class ThrowableCapsule
      */
     public function __unserialize(array $data)
     {
-        $exception = new $data['class']($data['message'], $data['code']);
+        $reflection = new ReflectionClass($data['class']);
+        $throwable = $reflection->newInstanceWithoutConstructor();
 
         try {
-            $reflection = new ReflectionClass($exception);
+            $reflection = new ReflectionClass($throwable);
+
+            $fileProp = $reflection->getProperty('message');
+            $fileProp->setAccessible(true);
+            $fileProp->setValue($throwable, $data['message']);
 
             $fileProp = $reflection->getProperty('file');
             $fileProp->setAccessible(true);
-            $fileProp->setValue($exception, $data['file']);
+            $fileProp->setValue($throwable, $data['file']);
 
             $lineProp = $reflection->getProperty('line');
             $lineProp->setAccessible(true);
-            $lineProp->setValue($exception, $data['line']);
+            $lineProp->setValue($throwable, $data['line']);
         } catch (ReflectionException) {
             // Skip if properties can't be changed
         }
 
-        throw $exception;
+        throw $throwable;
     }
 }
