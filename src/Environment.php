@@ -62,19 +62,23 @@ final class Environment
      */
     private static function maxProcesses(): int
     {
-        $cpuCores = (int) shell_exec('nproc');
+        $cpuCores = (int) shell_exec('getconf _NPROCESSORS_ONLN');
+        if ($cpuCores <= 0) {
+            $cpuCores = 1;
+        }
+
         $ioFactor = (int) getenv('FORK_IO_FACTOR') ?: 3;
         $maxByCpu = $cpuCores * $ioFactor;
 
         $os = PHP_OS_FAMILY;
         if ($os === 'Linux') {
-            $memInfo = file_get_contents('/proc/meminfo');
-            if ($memInfo === false || ! preg_match('/MemTotal:\s+(\d+) kB/', $memInfo, $matches)) {
+            $memInfo = @file_get_contents('/proc/meminfo');
+            // @phpstan-ignore-next-line
+            if (! preg_match('/MemTotal:\s+(\d+) kB/', $memInfo, $matches)) {
                 throw new RuntimeException('Unable to determine total memory on Linux');
             }
             $totalMemory = (int) $matches[1] * 1024;
         } elseif ($os === 'Darwin') {
-            // macOS: get memory using sysctl
             $totalMemory = (int) shell_exec('sysctl -n hw.memsize');
         } else {
             throw new RuntimeException("Unsupported OS: $os");
