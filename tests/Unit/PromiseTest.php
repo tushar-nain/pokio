@@ -27,4 +27,3 @@ test('catch for correct throwable type', function (): void {
     $result = await($promise);
     expect($result)->toBeTrue();
 })->with('runtimes');
-

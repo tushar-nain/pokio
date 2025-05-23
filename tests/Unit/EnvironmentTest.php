@@ -20,7 +20,7 @@ test('environment get total memory for linux without meminfo', function (): void
     $reflectionMethod = $reflection->getMethod('getTotalMemory');
     $reflectionMethod->setAccessible(true);
 
-    expect(fn() => $reflectionMethod->invokeArgs(null, ['Linux', null]))
+    expect(fn () => $reflectionMethod->invokeArgs(null, ['Linux', null]))
         ->toThrow(RuntimeException::class, 'Unable to determine total memory on Linux');
 });
 
@@ -32,7 +32,7 @@ test('environment get total memory for darwin', function (): void {
 
     $totalMemory = $reflectionMethod->invokeArgs(null, ['Darwin']);
     expect($totalMemory)->toBeGreaterThan(0);
-})->skip(fn() => PHP_OS_FAMILY !== 'Darwin', 'This test is only valid for Darwin OS');
+})->skip(fn () => PHP_OS_FAMILY !== 'Darwin', 'This test is only valid for Darwin OS');
 
 test('environment get total memory for unsupported os', function (): void {
     $reflection = new ReflectionClass(Environment::class);
@@ -40,6 +40,6 @@ test('environment get total memory for unsupported os', function (): void {
     $reflectionMethod = $reflection->getMethod('getTotalMemory');
     $reflectionMethod->setAccessible(true);
 
-    expect(fn() => $reflectionMethod->invokeArgs(null, ['UnsupportedOS']))
+    expect(fn () => $reflectionMethod->invokeArgs(null, ['UnsupportedOS']))
         ->toThrow(RuntimeException::class, 'Unsupported OS: UnsupportedOS');
 });

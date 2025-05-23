@@ -73,7 +73,7 @@ test('async with a finally callback', function (): void {
     $tmpfile = tmpfile();
     $path = stream_get_meta_data($tmpfile)['uri'];
 
-    $promise = async(fn() => 42)
+    $promise = async(fn () => 42)
         ->finally(function () use (&$path): void {
             file_put_contents($path, 'called');
         });
@@ -109,9 +109,10 @@ test('finally is called after then', function (): void {
     $tmpfile = tmpfile();
     $path = stream_get_meta_data($tmpfile)['uri'];
 
-    $promise = async(fn():int => 1 + 1)
+    $promise = async(fn (): int => 1 + 1)
         ->then(function (int $result) use (&$path): int {
             file_put_contents($path, 'called');
+
             return $result * 2;
         })
         ->finally(function () use (&$path): void {

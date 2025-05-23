@@ -38,17 +38,25 @@ final class Environment
     }
 
     /**
+     * Whether the current environment supports forking.
+     */
+    public static function supportsFork(): bool
+    {
+        return extension_loaded('pcntl') && extension_loaded('posix');
+    }
+
+    /**
      * Get the total memory of the system in bytes.
      *
-     * @param string $os (default: PHP_OS_FAMILY) The operating system family.
-     * @param string|null $memInfo (default: null) The memory information string (used for testing on linux).
+     * @param  string  $os  (default: PHP_OS_FAMILY) The operating system family.
+     * @param  string|null  $memInfo  (default: null) The memory information string (used for testing on linux).
      */
     private static function getTotalMemory(string $os = PHP_OS_FAMILY, ?string $memInfo = null): int
     {
         if ($os === 'Linux') {
             $memInfo = $memInfo ?? @file_get_contents('/proc/meminfo');
 
-            if (!$memInfo || !preg_match('/MemTotal:\s+(\d+) kB/', $memInfo, $matches)) {
+            if (! $memInfo || ! preg_match('/MemTotal:\s+(\d+) kB/', $memInfo, $matches)) {
                 throw new RuntimeException('Unable to determine total memory on Linux');
             }
 
@@ -60,13 +68,5 @@ final class Environment
         }
 
         throw new RuntimeException("Unsupported OS: $os");
-    }
-
-    /**
-     * Whether the current environment supports forking.
-     */
-    public static function supportsFork(): bool
-    {
-        return extension_loaded('pcntl') && extension_loaded('posix');
     }
 }

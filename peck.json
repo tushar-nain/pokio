@@ -15,7 +15,8 @@
             "rdwr",
             "creat",
             "prot",
-            "pokio's"
+            "pokio's",
+            "mem"
         ],
         "paths": []
     }
