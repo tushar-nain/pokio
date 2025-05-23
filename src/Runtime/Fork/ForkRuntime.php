@@ -7,6 +7,7 @@ namespace Pokio\Runtime\Fork;
 use Closure;
 use Pokio\Contracts\Future;
 use Pokio\Contracts\Runtime;
+use Pokio\Kernel;
 use Pokio\Promise;
 use RuntimeException;
 use Throwable;
@@ -36,8 +37,10 @@ final class ForkRuntime implements Runtime
      */
     public function __destruct()
     {
-        foreach (array_keys(self::$processes) as $pid) {
-            pcntl_waitpid($pid, $status);
+        if (Kernel::instance()->isOrchestrator()) {
+            foreach (array_keys(self::$processes) as $pid) {
+                pcntl_waitpid($pid, $status);
+            }
         }
     }
 
