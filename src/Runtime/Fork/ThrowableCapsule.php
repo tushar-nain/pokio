@@ -72,8 +72,10 @@ final class ThrowableCapsule
             $lineProp = $reflection->getProperty('line');
             $lineProp->setAccessible(true);
             $lineProp->setValue($throwable, $data['line']);
+            // @codeCoverageIgnoreStart
         } catch (ReflectionException) {
             // Skip if properties can't be changed
+            // @codeCoverageIgnoreEnd
         }
 
         throw $throwable;

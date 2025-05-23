@@ -104,7 +104,7 @@ Similar to the `catch` method, you may also chain a `finally` method to the prom
 
 ```php
 $promise = async(function (): void {
-    throw new HedgehogException('Exception 1');
+    throw new RuntimeException('Exception 1');
 })->finally(function () use (&$called): void {
     echo "Finally called\n";
 });

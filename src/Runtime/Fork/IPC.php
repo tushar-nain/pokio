@@ -51,6 +51,7 @@ final readonly class IPC
      */
     public function put(string $data): void
     {
+        // @codeCoverageIgnoreStart
         $ffi = self::libc();
         $length = mb_strlen($data, '8bit');
 
@@ -62,13 +63,17 @@ final readonly class IPC
         $ffi->ftruncate($fd, $length);
 
         $ptr = $ffi->mmap(null, $length, self::PROT_READ | self::PROT_WRITE, self::MAP_SHARED, $fd, 0);
-        if ($ffi->cast('intptr_t', $ptr)->cdata === -1) {
+        $intptr = $ffi->cast('intptr_t', $ptr);
+
+        // @phpstan-ignore-next-line
+        if ($intptr === null || $intptr->cdata === -1) {
             throw new RuntimeException('mmap failed to write');
         }
 
         $ffi->memcpy($ptr, $data, $length);
         $ffi->munmap($ptr, $length);
         $ffi->close($fd);
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -86,7 +91,10 @@ final readonly class IPC
         $length = filesize($this->path);
 
         $ptr = $ffi->mmap(null, $length, self::PROT_READ, self::MAP_SHARED, $fd, 0);
-        if ($ffi->cast('intptr_t', $ptr)->cdata === -1) {
+        $intptr = $ffi->cast('intptr_t', $ptr);
+
+        // @phpstan-ignore-next-line
+        if ($intptr === null || $intptr->cdata === -1) {
             throw new RuntimeException('mmap failed to read');
         }
 
