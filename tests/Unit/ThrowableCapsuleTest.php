@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Pokio\Runtime\Fork\ThrowableCapsule;
 use Tests\Fixtures\Exceptions\HedgehogException;
 
-test('ThrowableCapsule serializes correctly', function (): void {
+test('throwable capsule can serialize to array', function (): void {
     $exception = new HedgehogException('Out of hedgehogs', 42);
     $capsule = new ThrowableCapsule($exception);
 
@@ -19,7 +19,7 @@ test('ThrowableCapsule serializes correctly', function (): void {
         ->and($data['class'])->toBe(HedgehogException::class);
 })->with('runtimes');
 
-test('ThrowableCapsule unserializes and throws original exception type', function (): void {
+test('throwable capsule can unserialize from array', function (): void {
     $data = [
         'message' => 'Unicorn overflow',
         'code' => 99,
