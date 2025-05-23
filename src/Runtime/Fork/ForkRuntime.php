@@ -58,6 +58,8 @@ final class ForkRuntime implements Runtime
             $this->waitForProcess();
         }
 
+        $this->flushOutput();
+
         $ipc = IPC::create();
         $pid = pcntl_fork();
 
@@ -80,6 +82,9 @@ final class ForkRuntime implements Runtime
 
             $ipc->put($data);
 
+            $this->flushOutput();
+
+            posix_kill(posix_getpid(), SIGKILL);
             exit(0);
         }
 
@@ -103,6 +108,16 @@ final class ForkRuntime implements Runtime
 
         if ($pid > 0) {
             unset(self::$processes[$pid]);
+        }
+    }
+
+    /**
+     * Flushes the output buffer if it exists.
+     */
+    private function flushOutput(): void
+    {
+        if (ob_get_level() > 0) {
+            ob_end_flush();
         }
     }
 }
