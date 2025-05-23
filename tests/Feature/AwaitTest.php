@@ -68,3 +68,80 @@ test('async with a catch callback that throws an exception', function (): void {
         await($promise);
     })->toThrow(HedgehogException::class, 'Exception 2');
 })->with('runtimes');
+
+test('async with a finally callback', function (): void {
+    $tmpfile = tmpfile();
+    $path = stream_get_meta_data($tmpfile)['uri'];
+
+    $promise = async(fn() => 42)
+        ->finally(function () use (&$path): void {
+            file_put_contents($path, 'called');
+        });
+
+    $result = await($promise);
+
+    expect($result)->toBe(42);
+    expect(file_get_contents($path))->toBe('called');
+
+    fclose($tmpfile);
+})->with('runtimes');
+
+test('finally is called after exception', function (): void {
+    $tmpfile = tmpfile();
+    $path = stream_get_meta_data($tmpfile)['uri'];
+
+    $promise = async(function () {
+        throw new HedgehogException('Exception 1');
+    })->finally(function () use (&$path): void {
+        file_put_contents($path, 'called');
+    });
+
+    expect(function () use ($promise): void {
+        await($promise);
+    })->toThrow(HedgehogException::class, 'Exception 1');
+
+    expect(file_get_contents($path))->toBe('called');
+
+    fclose($tmpfile);
+})->with('runtimes');
+
+test('finally is called after then', function (): void {
+    $tmpfile = tmpfile();
+    $path = stream_get_meta_data($tmpfile)['uri'];
+
+    $promise = async(fn():int => 1 + 1)
+        ->then(function (int $result) use (&$path): int {
+            file_put_contents($path, 'called');
+            return $result * 2;
+        })
+        ->finally(function () use (&$path): void {
+            file_put_contents($path, 'called again');
+        });
+
+    $result = await($promise);
+
+    expect($result)->toBe(4);
+    expect(file_get_contents($path))->toBe('called again');
+
+    fclose($tmpfile);
+})->with('runtimes');
+
+test('then after async returing a promise', function (): void {
+    $promise = async(fn () => async(fn () => 4))
+        ->then(fn (int $result) => $result * 2);
+
+    $result = await($promise);
+
+    expect($result)->toBe(8);
+})->with('runtimes');
+
+test('second await uses already resolved promise', function (): void {
+    $promise = async(fn (): int => 1 + 2)
+        ->then(fn (int $result): int => $result * 2);
+
+    $result = await($promise);
+    expect($result)->toBe(6);
+
+    $result = await($promise);
+    expect($result)->toBe(6);
+})->with('runtimes');
