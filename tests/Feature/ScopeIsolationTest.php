@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 test('sync: global variables do leak into closure scope', function () {
     ensureSyncEnvironment();
 
@@ -19,6 +18,7 @@ test('sync: closure variables using `use` do leak outside', function () {
     $value = 'normal';
     $result = await(async(function () use (&$value) {
         $value = 'secret';
+
         return $value;
     }));
     expect($result)->toBe('secret')
@@ -76,6 +76,7 @@ test('fork: closure variables using `use` do not leak outside', function () {
     $value = 'normal';
     $result = await(async(function () use (&$value) {
         $value = 'secret';
+
         return $value;
     }));
 
