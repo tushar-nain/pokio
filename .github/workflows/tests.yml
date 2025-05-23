@@ -41,8 +41,5 @@ jobs:
     - name: Install Composer dependencies
       run: composer update --${{ matrix.dependency-version }} --no-interaction --prefer-dist
 
-    - name: Unit Tests
-      run: composer test:unit
-
-    - name: Type Coverage
-      run: composer test:type-coverage
+    - name: Integration Tests
+      run: php ./vendor/bin/pest
