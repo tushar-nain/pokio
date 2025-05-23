@@ -42,6 +42,16 @@ test('async with multiple then callbacks', function (): void {
     expect($result)->toBe(5);
 })->with('runtimes');
 
+test('async with an exception and no catch throws exception', function (): void {
+    expect(function (): void {
+        $promise = async(function (): void {
+            throw new HedgehogException('Not enough hedgehogs');
+        });
+
+        await($promise);
+    })->toThrow(HedgehogException::class, 'Not enough hedgehogs');
+})->with('runtimes');
+
 test('async with a catch callback', function (): void {
     $promise = async(function (): void {
         throw new HedgehogException('Exception 1');
