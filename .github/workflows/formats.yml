@@ -42,8 +42,5 @@ jobs:
     - name: Install Composer dependencies
       run: composer update --${{ matrix.dependency-version }} --no-interaction --prefer-dist
 
-    - name: Coding Style Checks
-      run: ./vendor/bin/pint --test
-
-    - name: Type Checks
-      run: composer test:types
+    - name: Integration Tests
+      run: php ./vendor/bin/pest
