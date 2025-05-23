@@ -14,7 +14,8 @@
             "libc",
             "rdwr",
             "creat",
-            "prot"
+            "prot",
+            "pokio's"
         ],
         "paths": []
     }

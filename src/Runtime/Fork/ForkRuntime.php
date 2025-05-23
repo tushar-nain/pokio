@@ -32,6 +32,16 @@ final class ForkRuntime implements Runtime
     }
 
     /**
+     * Cleans up any remaining processes on destruction, if any.
+     */
+    public function __destruct()
+    {
+        foreach (self::$processes as $pid) {
+            pcntl_waitpid($pid, $status);
+        }
+    }
+
+    /**
      * Defers the given callback to be executed asynchronously.
      *
      * @template TResult

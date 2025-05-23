@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Pokio;
 
-use Pokio\Contracts\Runtime;
-use Pokio\Runtime\Fork\ForkRuntime;
-use Pokio\Runtime\Sync\SyncRuntime;
 use RuntimeException;
 
 /**
@@ -15,52 +12,9 @@ use RuntimeException;
 final class Environment
 {
     /**
-     * The environment's runtime.
-     */
-    public static ?Runtime $runtime = null;
-
-    /**
-     * The environment's runtime.
-     */
-    public static function useFork(): void
-    {
-        if (! extension_loaded('pcntl') || ! extension_loaded('posix')) {
-            throw new RuntimeException('The pcntl and posix extensions are required to use the fork runtime.');
-        }
-
-        self::$runtime = new ForkRuntime(self::maxProcesses());
-    }
-
-    /**
-     * The environment's runtime.
-     */
-    public static function useSync(): void
-    {
-        self::$runtime = new SyncRuntime;
-    }
-
-    /**
-     * Resolves the environment's runtime.
-     *
-     * @internal
-     */
-    public static function runtime(): Runtime
-    {
-        if (Kernel::instance()->isOrchestrator() === false) {
-            return new SyncRuntime();
-        }
-
-        $areExtensionsAvailable = extension_loaded('pcntl') && extension_loaded('posix');
-
-        return self::$runtime ??= $areExtensionsAvailable
-            ? new ForkRuntime(self::maxProcesses())
-            : new SyncRuntime;
-    }
-
-    /**
      * The number of processes that can be run in parallel.
      */
-    private static function maxProcesses(): int
+    public static function maxProcesses(): int
     {
         $cpuCores = (int) shell_exec('getconf _NPROCESSORS_ONLN');
         if ($cpuCores <= 0) {
@@ -90,5 +44,13 @@ final class Environment
         $maxProcesses = min($maxByCpu, $maxByMemory);
 
         return max(1, $maxProcesses);
+    }
+
+    /**
+     * Whether the current environment supports forking.
+     */
+    public static function supportsFork(): bool
+    {
+        return extension_loaded('pcntl') && extension_loaded('posix');
     }
 }

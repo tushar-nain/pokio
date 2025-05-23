@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Pokio\Kernel;
+use Pokio\Pokio;
 use Pokio\Promise;
 
 if (! function_exists('async')) {
@@ -43,5 +45,15 @@ if (! function_exists('await')) {
             static fn (Promise $promise): mixed => $promise->resolve(),
             $promises
         );
+    }
+}
+
+if (! function_exists('pokio')) {
+    /**
+     * Returns the Pokio kernel instance.
+     */
+    function pokio(): Pokio
+    {
+        return new Pokio;
     }
 }
