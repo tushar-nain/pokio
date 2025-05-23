@@ -19,7 +19,7 @@ final class ForkRuntime implements Runtime
     /**
      * The PIDs of the currently running processes.
      *
-     * @var array<int, int>
+     * @var array<int, true>
      */
     private static array $processes = [];
 
@@ -36,7 +36,7 @@ final class ForkRuntime implements Runtime
      */
     public function __destruct()
     {
-        foreach (self::$processes as $pid) {
+        foreach (array_keys(self::$processes) as $pid) {
             pcntl_waitpid($pid, $status);
         }
     }
@@ -80,10 +80,13 @@ final class ForkRuntime implements Runtime
             exit(0);
         }
 
-        self::$processes[] = $pid;
+        self::$processes[$pid] = true;
 
         /** @var Future<TResult> $future */
-        $future = new ForkFuture($pid, $ipc); // @phpstan-ignore-line
+        // @phpstan-ignore-next-line
+        $future = new ForkFuture($pid, $ipc, function (int $pid) {
+            unset(self::$processes[$pid]);
+        });
 
         return $future;
     }
@@ -93,9 +96,10 @@ final class ForkRuntime implements Runtime
      */
     private function waitForProcess(): void
     {
-        $pid = pcntl_wait($status);
+        $pid = pcntl_wait($status, WNOHANG);
+
         if ($pid > 0) {
-            self::$processes = array_filter(self::$processes, fn (int $p) => $p !== $pid);
+            unset(self::$processes[$pid]);
         }
     }
 }

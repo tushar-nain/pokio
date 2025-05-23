@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Pokio\Runtime\Fork;
 
+use Closure;
 use Pokio\Contracts\Future;
 
 /**
@@ -35,6 +36,7 @@ final class ForkFuture implements Future
     public function __construct(
         private readonly int $pid,
         private readonly IPC $memory,
+        private readonly Closure $onWait,
     ) {
         //
     }
@@ -51,6 +53,8 @@ final class ForkFuture implements Future
         }
 
         pcntl_waitpid($this->pid, $status);
+
+        $this->onWait->__invoke($this->pid);
 
         $this->resolved = true;
 
