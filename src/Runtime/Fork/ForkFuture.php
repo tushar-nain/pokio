@@ -54,6 +54,13 @@ final class ForkFuture implements Future
 
         pcntl_waitpid($this->pid, $status);
 
+        // Check if the IPC file exists and is non-empty
+        if (! file_exists($this->memory->path()) || filesize($this->memory->path()) === 0) {
+            $this->resolved = true;
+
+            return $this->result = null;
+        }
+
         $this->onWait->__invoke($this->pid);
 
         $this->resolved = true;

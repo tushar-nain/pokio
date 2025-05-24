@@ -107,6 +107,14 @@ final readonly class IPC
     }
 
     /**
+     * Returns the path to the IPC memory block.
+     */
+    public function path(): string
+    {
+        return $this->path;
+    }
+
+    /**
      * Loads libc and defines function bindings.
      */
     private static function libc(): FFI
