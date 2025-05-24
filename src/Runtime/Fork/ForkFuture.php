@@ -21,7 +21,7 @@ final class ForkFuture implements Future
     /**
      * The result of the forked process, if any.
      *
-     * @var TResult
+     * @var TResult|null
      */
     private mixed $result = null;
 
@@ -44,7 +44,7 @@ final class ForkFuture implements Future
     /**
      * Awaits the result of the future.
      *
-     * @return TResult
+     * @return TResult|null
      */
     public function await(): mixed
     {
@@ -53,6 +53,13 @@ final class ForkFuture implements Future
         }
 
         pcntl_waitpid($this->pid, $status);
+
+        // Check if the IPC file exists and is non-empty
+        if (! file_exists($this->memory->path()) || filesize($this->memory->path()) === 0) {
+            $this->resolved = true;
+
+            return $this->result = null;
+        }
 
         $this->onWait->__invoke($this->pid);
 
