@@ -12,10 +12,19 @@ use RuntimeException;
 final class Environment
 {
     /**
+     * Cached value for maxProcesses to avoid redundant computations.
+     */
+    private static ?int $maxProcesses = null;
+
+    /**
      * The number of processes that can be run in parallel.
      */
     public static function maxProcesses(): int
     {
+        if (self::$maxProcesses !== null) {
+            return self::$maxProcesses;
+        }
+
         $cpuCores = (int) shell_exec('getconf _NPROCESSORS_ONLN');
 
         // @codeCoverageIgnoreStart
