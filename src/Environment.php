@@ -43,7 +43,9 @@ final class Environment
 
         $maxProcesses = min($maxByCpu, $maxByMemory);
 
-        return max(1, $maxProcesses);
+        self::$maxProcesses = max(1, $maxProcesses);
+
+        return self::$maxProcesses;
     }
 
     /**
