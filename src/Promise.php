@@ -48,6 +48,8 @@ final class Promise
      */
     public function resolve(): mixed
     {
+        $this->defer();
+        
         return $this->future->await();
     }
 
