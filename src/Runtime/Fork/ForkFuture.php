@@ -21,7 +21,7 @@ final class ForkFuture implements Future
     /**
      * The result of the forked process, if any.
      *
-     * @var TResult
+     * @var TResult|null
      */
     private mixed $result = null;
 
@@ -44,7 +44,7 @@ final class ForkFuture implements Future
     /**
      * Awaits the result of the future.
      *
-     * @return TResult
+     * @return TResult|null
      */
     public function await(): mixed
     {
