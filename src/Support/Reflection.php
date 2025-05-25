@@ -29,6 +29,7 @@ final readonly class Reflection
         if (count($parameters) > 0) {
             $type = current($parameters)->getType();
 
+            /** @var array<int, ReflectionNamedType> $types */
             $types = match (true) {
                 $type instanceof ReflectionUnionType => $type->getTypes(),
                 $type instanceof ReflectionNamedType => [$type],
@@ -37,9 +38,6 @@ final readonly class Reflection
         }
 
         $matchesType = false;
-        /** @var array<int, ReflectionNamedType> $types */
-        $types = array_filter($types);
-
         foreach ($types as $type) {
             $matchesType = $type->getName() === get_debug_type($throwable)
                 || is_a($throwable, $type->getName());
