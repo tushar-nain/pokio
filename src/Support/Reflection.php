@@ -7,6 +7,7 @@ namespace Pokio\Support;
 use Closure;
 use ReflectionFunction;
 use ReflectionNamedType;
+use ReflectionUnionType;
 use Throwable;
 
 /**
@@ -26,16 +27,17 @@ final readonly class Reflection
         $types = [];
 
         if (count($parameters) > 0) {
-            $type = $parameters[0]->getType();
+            $type = current($parameters)->getType();
 
-            /** @phpstan-ignore-next-line */
-            $types = is_array($type) ? $type : [$type];
+            /** @var array<int, ReflectionNamedType> $types */
+            $types = match (true) {
+                $type instanceof ReflectionUnionType => $type->getTypes(),
+                $type instanceof ReflectionNamedType => [$type],
+                default => [],
+            };
         }
 
         $matchesType = false;
-        /** @var array<int, ReflectionNamedType> $types */
-        $types = array_filter($types);
-
         foreach ($types as $type) {
             $matchesType = $type->getName() === get_debug_type($throwable)
                 || is_a($throwable, $type->getName());
