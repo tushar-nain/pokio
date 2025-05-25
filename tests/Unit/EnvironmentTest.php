@@ -20,7 +20,7 @@ test('environment get total memory for linux without meminfo', function (): void
     $reflectionMethod = $reflection->getMethod('getTotalMemory');
     $reflectionMethod->setAccessible(true);
 
-    expect(fn () => $reflectionMethod->invokeArgs(null, ['Linux', null]))
+    expect(fn () => $reflectionMethod->invokeArgs(null, ['Linux', '']))
         ->toThrow(RuntimeException::class, 'Unable to determine total memory on Linux');
 })->skip(fn () => PHP_OS_FAMILY === 'Linux', 'For Linux this actually falls back to /proc/meminfo');
 
