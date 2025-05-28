@@ -56,6 +56,10 @@ final class ForkRuntime implements Runtime
     {
         while (count(self::$processes) >= $this->maxProcesses) {
             $this->waitForProcess();
+
+            // Adding a 1ms sleep prevents busy-waiting by yielding CPU time,
+            // reducing high CPU usage while waiting for a free process slot.
+            usleep(1000);
         }
 
         $ipc = IPC::create();
