@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 arch()->preset()->php();
-arch()->preset()->strict();
+
+arch()->preset()->strict()->ignoring([
+    'usleep',
+]);
+
 arch()->preset()->security()->ignoring([
     'serialize',
     'unserialize',
