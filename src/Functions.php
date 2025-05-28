@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Pokio\Kernel;
+use Pokio\Exceptions\TimeoutException;
 use Pokio\Pokio;
 use Pokio\Promise;
 
@@ -22,19 +22,22 @@ if (! function_exists('async')) {
 }
 if (! function_exists('await')) {
     /**
-     * Awaits the resolution of a promise.
+     * Awaits the resolution of a promise or an array of promises.
      *
      * @template TReturn
      *
      * @param  array<int, Promise<TReturn>>|Promise<TReturn>  $promises
+     * @param  int|null  $timeout  Timeout in milliseconds or null for no timeout
      * @return ($promises is array ? array<int, TReturn> : TReturn)
+     *
+     * @throws TimeoutException If any promise times out.
      */
-    function await(array|Promise $promises): mixed
+    function await(array|Promise $promises, ?int $timeout = null): mixed
     {
         if (! is_array($promises)) {
             $promises->defer();
 
-            return $promises->resolve();
+            return $promises->resolve($timeout);
         }
 
         foreach ($promises as $promise) {
@@ -42,7 +45,7 @@ if (! function_exists('await')) {
         }
 
         return array_map(
-            static fn (Promise $promise): mixed => $promise->resolve(),
+            static fn (Promise $promise): mixed => $promise->resolve($timeout),
             $promises
         );
     }

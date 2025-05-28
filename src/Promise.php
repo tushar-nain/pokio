@@ -44,13 +44,14 @@ final class Promise
     /**
      * Resolves the promise.
      *
+     * @param  int|null  $timeout  Timeout in milliseconds, null means no timeout.
      * @return TReturn
      */
-    public function resolve(): mixed
+    public function resolve(?int $timeout = null): mixed
     {
         $this->defer();
 
-        return $this->future->await();
+        return $this->future->await($timeout);
     }
 
     /**

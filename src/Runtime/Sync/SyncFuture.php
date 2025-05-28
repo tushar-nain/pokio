@@ -30,9 +30,10 @@ final readonly class SyncFuture implements Future
     /**
      * Awaits the result of the future.
      *
+     * @param  int|null  $timeout  Timeout in milliseconds (ignored here).
      * @return TResult
      */
-    public function await(): mixed
+    public function await(?int $timeout = null): mixed
     {
         $result = ($this->callback)();
 

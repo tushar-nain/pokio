@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Pokio\Contracts;
 
+use Pokio\Exceptions\TimeoutException;
+
 /**
  * @internal
  *
@@ -12,9 +14,12 @@ namespace Pokio\Contracts;
 interface Future
 {
     /**
-     * The result of the asynchronous operation.
+     * Awaits the result of the asynchronous operation.
      *
+     * @param  int|null  $timeout  Timeout in milliseconds or null for no timeout.
      * @return TResult
+     *
+     * @throws TimeoutException If the operation times out.
      */
-    public function await(): mixed;
+    public function await(?int $timeout = null): mixed;
 }
