@@ -87,7 +87,6 @@ final class ForkRuntime implements Runtime
 
             $ipc->put($data);
 
-            posix_kill(posix_getpid(), SIGKILL);
             exit(0);
             // @codeCoverageIgnoreEnd
         }
