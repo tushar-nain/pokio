@@ -6,6 +6,7 @@ namespace Pokio\Runtime\Fork;
 
 use Closure;
 use Pokio\Contracts\Future;
+use Pokio\Exceptions\FutureAlreadyAwaited;
 
 /**
  * Represents the result of a forked process.
@@ -19,16 +20,9 @@ use Pokio\Contracts\Future;
 final class ForkFuture implements Future
 {
     /**
-     * The result of the forked process, if any.
-     *
-     * @var TResult|null
+     * Whether the result has been awaited.
      */
-    private mixed $result = null;
-
-    /**
-     * Indicates whether the result has been resolved.
-     */
-    private bool $resolved = false;
+    private bool $awaited = false;
 
     /**
      * Creates a new fork result instance.
@@ -48,26 +42,31 @@ final class ForkFuture implements Future
      */
     public function await(): mixed
     {
-        if ($this->resolved) {
-            return $this->result;
+        if ($this->awaited) {
+            throw new FutureAlreadyAwaited();
         }
+
+        $this->awaited = true;
 
         pcntl_waitpid($this->pid, $status);
 
-        // Check if the IPC file exists and is non-empty
         if (! file_exists($this->memory->path()) || filesize($this->memory->path()) === 0) {
-            $this->resolved = true;
-
-            return $this->result = null;
+            return null;
         }
 
         $this->onWait->__invoke($this->pid);
 
-        $this->resolved = true;
-
         /** @var TResult $result */
         $result = unserialize($this->memory->pop());
 
-        return $this->result = $result;
+        return $result;
+    }
+
+    /**
+     * Whether the result has been awaited.
+     */
+    public function awaited(): bool
+    {
+        return $this->awaited;
     }
 }

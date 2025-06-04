@@ -9,6 +9,7 @@ use Pokio\Contracts\Future;
 use Pokio\Contracts\Runtime;
 use Pokio\Kernel;
 use Pokio\Promise;
+use Pokio\UnwaitedFutureManager;
 use RuntimeException;
 use Throwable;
 
@@ -72,6 +73,8 @@ final class ForkRuntime implements Runtime
         }
 
         if ($pid === 0) {
+            UnwaitedFutureManager::instance()->flush();
+
             // @codeCoverageIgnoreStart
             try {
                 $result = $callback();

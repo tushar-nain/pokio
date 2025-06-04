@@ -17,4 +17,9 @@ interface Future
      * @return TResult
      */
     public function await(): mixed;
+
+    /**
+     * Whether the result has been awaited.
+     */
+    public function awaited(): bool;
 }

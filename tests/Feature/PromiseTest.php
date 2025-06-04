@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Pokio\Exceptions\FutureAlreadyAwaited;
+use Pokio\UnwaitedFutureManager;
+
 test('async with a single promise', function (): void {
     $promise = async(fn (): int => 1 + 2);
 
@@ -135,13 +138,56 @@ test('then after async returning a promise', function (): void {
     expect($result)->toBe(8);
 })->with('runtimes');
 
-test('second await uses already resolved promise', function (): void {
+test('second await uses throws an exception', function (): void {
     $promise = async(fn (): int => 1 + 2)
         ->then(fn (int $result): int => $result * 2);
 
     $result = await($promise);
-    expect($result)->toBe(6);
 
-    $result = await($promise);
-    expect($result)->toBe(6);
+    expect($result)->toBe(6)
+        ->and(fn () => await($promise))
+        ->toThrow(FutureAlreadyAwaited::class);
+})->with('runtimes');
+
+test('promises are always waited for', function (): void {
+    $path = tempnam(sys_get_temp_dir(), 'pokio_');
+
+    // create file:
+    file_put_contents($path, 'start: ');
+
+    async(function () use (&$path): void {
+        file_put_contents($path, 'a called by callback, ', FILE_APPEND);
+    })->then(function () use (&$path): void {
+        // append to the file
+        file_put_contents($path, 'a called by then, ', FILE_APPEND);
+    })->finally(function () use (&$path): void {
+        // append to the file
+        file_put_contents($path, 'a called by finally.', FILE_APPEND);
+    });
+
+    async(function () use (&$path): void {
+        file_put_contents($path, 'b called by callback, ', FILE_APPEND);
+    })->then(function () use (&$path): void {
+        // append to the file
+        file_put_contents($path, 'b called by then, ', FILE_APPEND);
+    })->finally(function () use (&$path): void {
+        // append to the file
+        file_put_contents($path, 'b called by finally.', FILE_APPEND);
+    });
+
+    async(function () use (&$path) {
+        async(fn () => file_put_contents($path, 'c called by callback, ', FILE_APPEND));
+    })->then(function () use (&$path) {
+        // append to the file
+        async(fn () => file_put_contents($path, 'c called by then, ', FILE_APPEND));
+    })->finally(function () use (&$path) {
+        // append to the file
+        async(fn () => file_put_contents($path, 'c called by finally.', FILE_APPEND));
+    });
+
+    gc_collect_cycles();
+
+    UnwaitedFutureManager::instance()->run();
+
+    expect(file_get_contents($path))->toBe('start: a called by callback, a called by then, a called by finally.b called by callback, b called by then, b called by finally.c called by callback, c called by then, c called by finally.');
 })->with('runtimes');

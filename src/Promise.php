@@ -6,6 +6,8 @@ namespace Pokio;
 
 use Closure;
 use Pokio\Contracts\Future;
+use Pokio\Exceptions\PromiseAlreadyStarted;
+use Pokio\Runtime\Sync\SyncFuture;
 use Pokio\Support\Reflection;
 use Throwable;
 
@@ -17,20 +19,44 @@ use Throwable;
 final class Promise
 {
     /**
+     * The process ID when the promise was created.
+     */
+    private readonly string $pid;
+
+    /**
      * The result of the asynchronous operation.
      *
-     * @var Future<TReturn>
+     * @var Future<TReturn>|null
      */
-    private Future $future;
+    private ?Future $future = null;
 
     /**
      * Creates a new promise instance.
      *
      * @param  Closure(): TReturn  $callback
      */
-    public function __construct(private readonly Closure $callback)
+    public function __construct(
+        private readonly Closure $callback
+    ) {
+        $this->pid = (string) getmypid();
+    }
+
+    /**
+     * Resolves the promise when the object is destroyed.
+     */
+    public function __destruct()
     {
-        //
+        if ((string) getmypid() !== $this->pid) {
+            return;
+        }
+
+        $this->defer();
+
+        if ($this->future->awaited()) {
+            return;
+        }
+
+        UnwaitedFutureManager::instance()->schedule($this->future);
     }
 
     /**
@@ -50,6 +76,8 @@ final class Promise
     {
         $this->defer();
 
+        assert($this->future instanceof Future);
+
         return $this->future->await();
     }
 
@@ -63,6 +91,8 @@ final class Promise
      */
     public function then(Closure $then): self
     {
+        $this->ignore();
+
         $callback = $this->callback;
 
         // @phpstan-ignore-next-line
@@ -88,6 +118,8 @@ final class Promise
      */
     public function catch(Closure $catch): self
     {
+        $this->ignore();
+
         $callback = $this->callback;
 
         return new self(function () use ($callback, $catch) {
@@ -111,6 +143,8 @@ final class Promise
      */
     public function finally(Closure $finally): self
     {
+        $this->ignore();
+
         $callback = $this->callback;
 
         return new self(function () use ($callback, $finally) {
@@ -120,5 +154,18 @@ final class Promise
                 ($finally)();
             }
         });
+    }
+
+    /**
+     * Ignores the promise, effectively discarding the result.
+     */
+    private function ignore(): void
+    {
+        if ($this->future instanceof Future) {
+            throw new PromiseAlreadyStarted();
+        }
+
+        // @phpstan-ignore-next-line
+        $this->future = new SyncFuture(static fn () => null);
     }
 }

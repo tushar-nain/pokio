@@ -9,6 +9,7 @@ arch()->preset()->strict()->ignoring([
 ]);
 
 arch()->preset()->security()->ignoring([
+    'assert',
     'serialize',
     'unserialize',
     'shell_exec',
