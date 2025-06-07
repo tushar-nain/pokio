@@ -49,7 +49,7 @@ However, unlike other libraries, if **PCNTL** is not available, Pokio will autom
 ⚡️ Get started by requiring the package using [Composer](https://getcomposer.org):
 
 ```bash
-composer require nunomaduro/pokio:@dev
+composer require nunomaduro/pokio:^0.1
 ```
 
 ## Usage
