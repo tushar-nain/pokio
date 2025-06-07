@@ -52,6 +52,8 @@ final class Promise
 
         $this->defer();
 
+        assert($this->future instanceof Future);
+
         if ($this->future->awaited()) {
             return;
         }

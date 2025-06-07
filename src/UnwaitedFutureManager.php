@@ -19,11 +19,10 @@ final class UnwaitedFutureManager
     /**
      * Creates a new future manager instance.
      *
-     * @param  array<int, Future<mixed>>  $queue
+     * @param  array<string, Future<mixed>>  $queue
      */
     private function __construct(
         private array $queue,
-        private int $pid,
     ) {
         //
     }
@@ -43,7 +42,6 @@ final class UnwaitedFutureManager
     {
         return self::$instance ??= new self(
             [],
-            getmypid(),
         );
     }
 
