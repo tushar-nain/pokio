@@ -53,7 +53,9 @@ final class Environment
      */
     public static function supportsFork(): bool
     {
-        return extension_loaded('pcntl') && extension_loaded('posix');
+        return extension_loaded('pcntl')
+            && extension_loaded('posix')
+            && class_exists('FFI');
     }
 
     /**
