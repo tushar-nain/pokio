@@ -40,7 +40,9 @@ echo $resB; // Task 2
 
 Behind-the-scenes, Pokio uses the **[PCNTL](https://www.php.net/manual/en/book.pcntl.php)** extension to fork the current process and run the given closure in a child process. This allows you to run multiple tasks concurrently, without blocking the main process.
 
-However, unlike other libraries, if **PCNTL** is not available, Pokio will automatically fall back using sequential execution, so you can still use it without any issues.
+Also, for communication between the parent and child processes, Pokio uses **[FFI](https://www.php.net/manual/en/book.ffi.php)** to create a shared memory segment, which allows you to share data between processes fast and efficiently.
+
+However, unlike other libraries, if **PCNTL** or **FFI** are not available, Pokio will automatically fall back to sequential execution, so you can still use it without any issues.
 
 ## Installation
 
