@@ -191,3 +191,9 @@ test('promises are always waited for', function (): void {
 
     expect(file_get_contents($path))->toBe('start: a called by callback, a called by then, a called by finally.b called by callback, b called by then, b called by finally.c called by callback, c called by then, c called by finally.');
 })->with('runtimes');
+
+test('invokable promise resolves correctly', function (): void {
+    $result = async(fn (): int => 1 + 2)();
+
+    expect($result)->toBe(3);
+})->with('runtimes');
