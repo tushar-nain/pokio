@@ -6,6 +6,7 @@ namespace Pokio\Runtime\Sync;
 
 use Closure;
 use Pokio\Contracts\Future;
+use Pokio\Exceptions\FutureAlreadyAwaited;
 use Pokio\Promise;
 
 /**
@@ -15,8 +16,13 @@ use Pokio\Promise;
  *
  * @implements Future<TResult>
  */
-final readonly class SyncFuture implements Future
+final class SyncFuture implements Future
 {
+    /**
+     * Indicates whether the result has been awaited.
+     */
+    private bool $awaited = false;
+
     /**
      * Creates a new sync result instance.
      *
@@ -34,6 +40,12 @@ final readonly class SyncFuture implements Future
      */
     public function await(): mixed
     {
+        if ($this->awaited) {
+            throw new FutureAlreadyAwaited();
+        }
+
+        $this->awaited = true;
+
         $result = ($this->callback)();
 
         if ($result instanceof Promise) {
@@ -41,5 +53,13 @@ final readonly class SyncFuture implements Future
         }
 
         return $result;
+    }
+
+    /**
+     * Whether the result has been awaited.
+     */
+    public function awaited(): bool
+    {
+        return $this->awaited;
     }
 }

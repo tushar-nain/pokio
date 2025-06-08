@@ -16,7 +16,10 @@
             "creat",
             "prot",
             "pokio's",
-            "mem"
+            "mem",
+            "unwaited",
+            "unschedule",
+            "unschedules"
         ],
         "paths": []
     }

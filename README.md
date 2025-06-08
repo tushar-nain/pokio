@@ -1,4 +1,10 @@
-> **Caution**: This package is a **work in progress** and it manipulates process lifecycles using low-level and potentially unsafe techniques such as FFI for inter-process communication, forcefully bypassing destructors, and preserving state across process spawns. It is intended strictly for internal use (e.g., performance optimizations in Pest). **Use at your own risk**—no guarantees are provided.
+<p align="center">
+    <a href="https://youtu.be/JUDQuymlsh0" target="_blank">
+        <img src="/art/banner.jpg" alt="Overview Pokio" style="width:70%;">
+    </a>
+</p>
+
+> **Caution**: This package is a **work in progress** and it manipulates process lifecycles using low-level and potentially unsafe techniques such as FFI for inter-process communication, and preserving state across process spawns. It is intended strictly for internal use (e.g., performance optimizations in Pest). **Don't use this in production or use at your own risk**—no guarantees are provided.
 
 <a href="https://nunomaduro.com/">
   <picture>
@@ -38,6 +44,12 @@ echo $resA; // Task 1
 echo $resB; // Task 2
 ```
 
+Behind-the-scenes, Pokio uses the **[PCNTL](https://www.php.net/manual/en/book.pcntl.php)** extension to fork the current process and run the given closure in a child process. This allows you to run multiple tasks concurrently, without blocking the main process.
+
+Also, for communication between the parent and child processes, Pokio uses **[FFI](https://www.php.net/manual/en/book.ffi.php)** to create a shared memory segment, which allows you to share data between processes fast and efficiently.
+
+However, unlike other libraries, if **PCNTL** or **FFI** are not available, Pokio will automatically fall back to sequential execution, so you can still use it without any issues.
+
 ## Installation
 
 > **Requires [PHP 8.3+](https://php.net/releases/)**.
@@ -45,7 +57,7 @@ echo $resB; // Task 2
 ⚡️ Get started by requiring the package using [Composer](https://getcomposer.org):
 
 ```bash
-composer require nunomaduro/pokio:@dev
+composer require nunomaduro/pokio:^0.1
 ```
 
 ## Usage
@@ -152,6 +164,16 @@ $promiseB = async(function () {
 });
 
 var_dump(await([$promiseA, $promiseB])); // array(2) { [0]=> int(2) [1]=> int(4) }
+```
+
+Instead of using the await function, you can also invoke the promise directly, which will return the resolved value of the promise.
+
+```php
+$promise = async(fn (): int => 1 + 2);
+
+$result = $promise();
+
+var_dump($result); // int(3)
 ```
 
 ## Follow Nuno
