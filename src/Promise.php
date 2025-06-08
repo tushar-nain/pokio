@@ -62,6 +62,16 @@ final class Promise
     }
 
     /**
+     * Invokes the promise, defering the callback to be executed immediately.
+     *
+     * @return TReturn
+     */
+    public function __invoke(): mixed
+    {
+        return $this->resolve();
+    }
+
+    /**
      * Defer the given callback to be executed asynchronously.
      */
     public function defer(): void

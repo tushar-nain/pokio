@@ -166,6 +166,16 @@ $promiseB = async(function () {
 var_dump(await([$promiseA, $promiseB])); // array(2) { [0]=> int(2) [1]=> int(4) }
 ```
 
+Instead of using the await function, you can also invoke the promise directly, which will return the resolved value of the promise.
+
+```php
+$promise = async(fn (): int => 1 + 2);
+
+$result = $promise();
+
+var_dump($result); // int(3)
+```
+
 ## Follow Nuno
 
 - Follow the creator Nuno Maduro:
